@@ -253,6 +253,7 @@ Toggling this off will disable showing auras even if it is enabled]=] ] = "" ]==
 -- L["Show class text on the power bar"] = ""
 -- L["Show cooldown"] = ""
 -- L["Show cooldown icons"] = ""
+L["Hide Cooldown border"] = "Cacher la bordure des Icones"
 -- L["Show DR cooldown icons"] = ""
 -- L["Show health percentage"] = ""
 -- L["Show health percentage on the health bar"] = ""
@@ -326,4 +327,3 @@ L["Toggle if a border should be shown around your current focus"] = "Cocher si v
 -- L["Width of the cast bars"] = ""
 -- L["Width of the health and power bars"] = ""
 -- L["Width of the pet bars"] = ""
-

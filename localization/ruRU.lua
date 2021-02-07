@@ -143,6 +143,7 @@ L["Gladius - drag to move"] = "Gladius - тащите для перемещен�
 L["/gladius test1-5"] = "/gladius test1-5"
 L["/gladius ui"] = "/gladius ui"
 L["Grid-style icon"] = "Иконка в стиле Grid" -- Needs review
+L["Grid-big icon"] = "Иконка в стиле BIG icon"
 L["Grow frame upwards"] = "Фрейм будет расти вверх"
 -- L["Health bar color"] = ""
 L["Health bar height"] = "Высота полос здоровья"
@@ -245,6 +246,8 @@ L["Show border around focus"] = "Отображать контур вокруг 
 -- L["Show border around main assist"] = ""
 L["Show border around target"] = "Отображать контур вокруг цели"
 L["Show cast bars"] = "Отображать полосы применения заклинаний"
+L["Show cast bars on cast"] = "Отображать полосы применения заклинаний on cast"
+L["Show cast bars on casting"] = "Отображать полосы применения заклинаний on cast"
 L["Show class icon"] = "Отображать иконки классов"
 L[ [=[Show class icon
 IMPORTANT:
@@ -256,6 +259,7 @@ L["Show class text on the power bar"] = "Отображать текст кла�
 -- L["Show cooldown"] = ""
 -- L["Show cooldown icons"] = ""
 -- L["Show DR cooldown icons"] = ""
+L["Hide Cooldown border"] = "Hide Cooldown border"
 L["Show health percentage"] = "Отображать процентное количество здоровья"
 L["Show health percentage on the health bar"] = "Отображать процентное количество на полосах здоровья"
 L["Show important auras over the class icon with a timer. You can select which auras to show and their respective priorites in the auralist.lua file"] = "Отображать важные ауры с таймером над иконкой класса. Вы можете выбрать ауры для отображения  и их приоритеты в разделе аур, находящемся слева."
@@ -328,5 +332,3 @@ L["Where to display the announcement messages"] = "Где отображать �
 -- L["Width of the cast bars"] = ""
 L["Width of the health and power bars"] = "Ширина полос здоровья/силы"
 L["Width of the pet bars"] = "Ширина полос питомцев" -- Needs review
-
-
