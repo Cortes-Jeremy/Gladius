@@ -1,7 +1,7 @@
 ﻿## Interface: 30300
-## Title: Gladius
+## Title: |cff1784d1Gladius|r |cffe5e3e3Enhanced|r
 ## Notes: Arena enemy unit frames
-## Version: v1.2.0
+## Version: v1.2.1
 ## Author: Proditor, Rinu
 ## SavedVariables: GladiusDB
 ## OptionalDeps: Ace3, LibStub, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets

@@ -143,6 +143,7 @@ L["Gladius - drag to move"] = "Gladius - 드레그 이동"
 L["/gladius test1-5"] = "/gladius test1-5"
 L["/gladius ui"] = "/gladius ui"
 L["Grid-style icon"] = "그리드 스타일 아이콘"
+L["Grid-big icon"] = "그리드 스타일 아이콘 LARGE"
 L["Grow frame upwards"] = "프레임 위로 쌓기"
 -- L["Health bar color"] = ""
 L["Health bar height"] = "체력 바 높이"
@@ -245,16 +246,19 @@ L["Show border around focus"] = "주시대상 테두리 보기"
 -- L["Show border around main assist"] = ""
 L["Show border around target"] = "대상 테두리 보기"
 L["Show cast bars"] = "시전 바 보기"
+L["Show cast bars on cast"] = "시전 바 보기 on cast"
+L["Show cast bars on casting"] = "시전 바 보기 on cast"
 L["Show class icon"] = "직업 아이콘 보기"
 L[ [=[Show class icon
 IMPORTANT:
-Toggling this off will disable showing auras even if it is enabled]=] ] = [=[직업 아이콘 보기 
+Toggling this off will disable showing auras even if it is enabled]=] ] = [=[직업 아이콘 보기
 중요:
  이 기능을 끄면 오라 보기가 켜지더라도 작동하지 않습니다.]=]
 L["Show class text"] = "직업 글자 보기"
 L["Show class text on the power bar"] = "파워 바에 직업 보기"
 -- L["Show cooldown"] = ""
 -- L["Show cooldown icons"] = ""
+L["Hide Cooldown border"] = "Hide Cooldown border"
 L["Show DR cooldown icons"] = "군중제어 쿨다운 아이콘 보기"
 L["Show health percentage"] = "체력 백분율 보기"
 L["Show health percentage on the health bar"] = "체력 바에 체력 백분율 보기"
@@ -328,5 +332,3 @@ L["Where to display the announcement messages"] = "알림 메세지를 어디에
 L["Width of the cast bars"] = "시전 바의 넓이"
 L["Width of the health and power bars"] = "체력/파워 바의 길이"
 L["Width of the pet bars"] = "펫 바의 길이 설정"
-
-

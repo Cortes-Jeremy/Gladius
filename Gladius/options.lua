@@ -159,7 +159,7 @@ end
 local function slashHandler(option)
 	-- Mayhaps use Ace to handle slash command? It leaves something to be desired, methinks. -kremonted
 	option = string.lower(option)
-	
+
 	if option == "ui" or option == "config" or option == "options" then
 		Gladius:ShowOptions()
 	elseif option == "test1" then
@@ -254,7 +254,7 @@ local function setAura(info, value)
 	Gladius.db.profile.auras[tonumber(info[#(info) - 1])][info[(#info)]] = value
 
 	if ( info[#(info)] == "name" ) then
-		self.options.args.auras.args.list.args[info[#(info) - 1]].name = value 
+		self.options.args.auras.args.list.args[info[#(info) - 1]].name = value
 	end
 
 	Gladius:ConvertAuraList()
@@ -269,8 +269,8 @@ end
 local function setAttribute(info, value)
 	Gladius.db.profile.attributes[tonumber(info[#(info) - 1])][info[(#info)]] = value
 
-	if ( info[#(info)] == "name" ) then 
-		self.options.args.clicks.args[info[#(info) - 1]].name = value 
+	if ( info[#(info)] == "name" ) then
+		self.options.args.clicks.args[info[#(info) - 1]].name = value
 	end
 
 	Gladius:UpdateFrame()
@@ -388,7 +388,7 @@ local function SetupAttributeOption(number)
 			},
 		},
 	}
-	
+
 	return attribute
 end
 
@@ -419,14 +419,14 @@ local function SetupAuraOption(number)
             type = "select",
             name = L["Announcement type"],
             desc = L["Where to display the announcement messages"],
-            get=function(info) 
+            get=function(info)
                local name = self.options.args.auras.args.list.args[info[#(info) - 1]].name
-               return self.db.profile.auraAnnounceList[name] == nil and "disabled" or self.db.profile.auraAnnounceList[name] 
+               return self.db.profile.auraAnnounceList[name] == nil and "disabled" or self.db.profile.auraAnnounceList[name]
             end,
             set=function(info, value)
-               local name = self.options.args.auras.args.list.args[info[#(info) - 1]].name               
+               local name = self.options.args.auras.args.list.args[info[#(info) - 1]].name
                self.db.profile.auraAnnounceList[name] = value
-               
+
                Gladius:ConvertAuraList()
                Gladius:UpdateFrame()
             end,
@@ -437,25 +437,25 @@ local function SetupAuraOption(number)
 				type = "execute",
 				name = L["Delete"],
 				func = function(info)
-				
+
 					local defaultAuras = Gladius:GetAuraList()
 					local name = self.db.profile.auras[tonumber(info[#(info) - 1])].name
 					self.db.profile.auraAnnounceList[name] = nil
-					
+
 					-- check if it's a default aura, thus it can't really get deleted and it'll just set the deleted variable to true instead
 					if ( defaultAuras[name] ) then
 						self.db.profile.auras[tonumber(info[#(info) - 1])].deleted = true
 					else
 						table.remove(self.db.profile.auras, tonumber(info[#(info) - 1]))
 					end
-					
+
 					self.options.args.auras.args.list.args = {}
 					for i=#(self.db.profile.auras), 1, -1 do
 						if ( not self.db.profile.auras[i].deleted ) then
 							self.options.args.auras.args.list.args[tostring(i)] = SetupAuraOption(i)
 						end
 					end
-					
+
 					Gladius:ConvertAuraList()
 				end,
 			},
@@ -469,7 +469,7 @@ function Gladius:SetupOptions()
 	local newAuraPrio = 3
 	local newAuraName = "Aura name"
 	local newAuraAnnounce = "disabled"
-	
+
 	local trinketValues = {
 		["nameText"] = L["Name text"],
 		["nameIcon"] = L["Name icon"],
@@ -477,8 +477,9 @@ function Gladius:SetupOptions()
 		["overrideIcon"] = L["Override class/aura icon"],
 		["smallIcon"] = L["Small icon"],
 		["gridIcon"] = L["Grid-style icon"],
+		["bigGridIcon"] = L["Grid-big icon"],
 	}
-	
+
 	self.options = {
 		type = "group",
 		name = "Gladius",
@@ -536,7 +537,7 @@ function Gladius:SetupOptions()
 						order=35,
 						get=getColorOption,
 						set=setColorOption,
-					},			
+					},
 					highlight = {
 						type="toggle",
 						name=L["Highlight target"],
@@ -572,11 +573,11 @@ function Gladius:SetupOptions()
 						name=L["Show target icon"],
 						desc=L["Show target icon"],
 						order=97,
-					},					
+					},
 					cliqueSupport = {
 						type="toggle",
 						name=L["Clique support"],
-						desc=L["Toggles the Clique support, requires UI reload to take effect"],					
+						desc=L["Toggles the Clique support, requires UI reload to take effect"],
 						order=100,
 					},
 					announcements = {
@@ -653,9 +654,9 @@ function Gladius:SetupOptions()
 								min=1,
 								max=100,
 								step=1,
-								disabled = function() return not self.db.profile.lowHealthAnnounce end,						
+								disabled = function() return not self.db.profile.lowHealthAnnounce end,
 								order=50,
-							},							
+							},
 						},
 					},
 					trinket = {
@@ -685,7 +686,7 @@ function Gladius:SetupOptions()
 								min=.1,
 								max=2,
 								step=.1,
-								disabled = function() return not self.db.profile.trinketStatus or self.db.profile.trinketDisplay ~= "bigIcon" end,						
+								disabled = function() return not self.db.profile.trinketStatus or self.db.profile.trinketDisplay ~= "bigIcon" and self.db.profile.trinketDisplay ~= "bigGridIcon" end,
 								order=30,
 							},
 						},
@@ -721,7 +722,7 @@ function Gladius:SetupOptions()
 									["desat"] = L["Desaturated (grayscale)"],
 								},
 								order=3,
-							},		
+							},
 						},
 					},
 				},
@@ -733,21 +734,33 @@ function Gladius:SetupOptions()
 				order=2,
 				args = {
 					castBarPos = {
-                  type="select",
-                  name=L["Cast bar position"],
-                  desc=L["Position of the cast bar"],
-                  values = {
-                     ["CENTER"] = L["Center"],
-                     ["RIGHT"] = L["Right"],
-                     ["LEFT"] = L["Left"],
-                  },
-                  order=2,
-               },
+						type="select",
+						name=L["Cast bar position"],
+						desc=L["Position of the cast bar"],
+						values = {
+							["CENTER"] = L["Center"],
+							["RIGHT"] = L["Right"],
+							["LEFT"] = L["Left"],
+						},
+						order=4,
+               		},
 					castBar = {
 						type="toggle",
 						name=L["Show cast bars"],
 						desc=L["Show cast bars"],
 						order=1,
+					},
+					castBarOnCast = {
+						type="toggle",
+						name=L["Show cast bars on cast"],
+						desc=L["Show cast bars on casting"],
+						order=2,
+					},
+					hideSpellRank = {
+						type="toggle",
+						name=L["Hide spell rank"],
+						desc=L["Hide spell rankD"],
+						order=3,
 					},
 					showPets = {
 						type="toggle",
@@ -780,8 +793,8 @@ function Gladius:SetupOptions()
 								type="range",
 								name=L["Health bar height"],
 								desc=L["Height of the health bars"],
-								min=5,
-								max=50,
+								min=1,
+								max=100,
 								step=1,
 								order=3,
 							},
@@ -804,7 +817,7 @@ function Gladius:SetupOptions()
 								max=50,
 								step=1,
 								order=4,
-							},							
+							},
 							castBarHeight = {
 								type="range",
 								name=L["Cast bar height"],
@@ -830,7 +843,7 @@ function Gladius:SetupOptions()
 								name=L["Power bar height"],
 								desc=L["Height of the power bars"],
 								disabled = function() return not self.db.profile.powerBar end,
-								min=5,
+								min=1,
 								max=50,
 								step=1,
 								order=6,
@@ -852,7 +865,7 @@ function Gladius:SetupOptions()
 						desc=L["Color settings"],
 						order=2,
 						args = {
-                     healthBarColor = {
+						healthBarColor = {
 								type="color",
 								name=L["Health bar color"],
 								desc=L["Color of the health bar"],
@@ -1039,7 +1052,7 @@ function Gladius:SetupOptions()
 						name=L["Show max health"],
 						desc=L["Show maximum health on the health bar"],
 						order=20,
-					},					
+					},
 					manaText = {
 						type="toggle",
 						name=L["Show power text"],
@@ -1109,7 +1122,7 @@ function Gladius:SetupOptions()
 						desc=L["Show pet health on the pet bar (formatted the same as the ordinary health text)"],
 						disabled = function() return not self.db.profile.showPets end,
 						order=90,
-					},	
+					},
 					sizes = {
 						type="group",
 						name=L["Sizes"],
@@ -1134,7 +1147,7 @@ function Gladius:SetupOptions()
 								max=20,
 								step=1,
 								order=3,
-							},						
+							},
 							castBarFontSize = {
 								type="range",
 								name=L["Cast bar text size"],
@@ -1145,6 +1158,18 @@ function Gladius:SetupOptions()
 								step=1,
 								order=5,
 							},
+							castBarTextOutline = {
+								type="select",
+								name=L["Cast bar text Outline"],
+								desc=L["Cast bar text Outline"],
+								values = {
+									["Default"] = L["CastBarTextOutline_Default"],
+									["OUTLINE"] = L["CastBarTextOutline_Outline"],
+									["THICKOUTLINE"] = L["CastBarTextOutline_TOutline"],
+									["MONOCHROME"] = L["CastBarTextOutline_Monochrome"],
+								},
+								order=6,
+							},
 							petFontSize = {
 								type="range",
 								name=L["Pet bar text size"],
@@ -1152,7 +1177,7 @@ function Gladius:SetupOptions()
 								min=1,
 								max=20,
 								step=1,
-								order=6,
+								order=7,
 							},
 							auraFontSize = {
 								type="range",
@@ -1271,7 +1296,7 @@ function Gladius:SetupOptions()
 										self:UpdateFrame()
 									end,
 								order=12
-							},	
+							},
 							manaFont = {
 								type="select",
 								name=L["Mana text font"],
@@ -1286,7 +1311,7 @@ function Gladius:SetupOptions()
 										self:UpdateFrame()
 									end,
 								order=13
-							},		
+							},
 							castBarFont = {
 								type="select",
 								name=L["Cast bar text font"],
@@ -1301,7 +1326,7 @@ function Gladius:SetupOptions()
 										self:UpdateFrame()
 									end,
 								order=14
-							},	
+							},
 							petBarFont = {
 								type="select",
 								name=L["Pet bar text font"],
@@ -1316,7 +1341,7 @@ function Gladius:SetupOptions()
 										self:UpdateFrame()
 									end,
 								order=15
-							},	
+							},
 							auraFont = {
 								type="select",
 								name=L["Aura text font"],
@@ -1331,7 +1356,7 @@ function Gladius:SetupOptions()
 										self:UpdateFrame()
 									end,
 								order=16
-							},	
+							},
 							debuffFont = {
 								type="select",
 								name=L["Debuff text font"],
@@ -1346,7 +1371,7 @@ function Gladius:SetupOptions()
 										self:UpdateFrame()
 									end,
 								order=17
-							},		
+							},
 							drFont = {
 								type="select",
 								name=L["DR text font"],
@@ -1361,7 +1386,7 @@ function Gladius:SetupOptions()
 										self:UpdateFrame()
 									end,
 								order=17
-							},									
+							},
 						},
 					},
 				},
@@ -1391,7 +1416,7 @@ function Gladius:SetupOptions()
                   name=L["Adjust Icon Size"],
                   desc=L["Adjust Icon Size on the Unit's Height"],
                   order=2,
-               },   
+               },
                drIconSize = {
                   type="range",
                   name=L["Icon Size"],
@@ -1401,7 +1426,7 @@ function Gladius:SetupOptions()
                   max=100,
                   step=1,
                   order=3,
-               }, 
+               },
                drMargin = {
                   type="range",
                   name=L["Icon Margin"],
@@ -1426,124 +1451,124 @@ function Gladius:SetupOptions()
                   type="toggle",
                   name=L["No Cooldown Count (omniCC)"],
                   order=6,
-               }, 
-               drDisorient = {                  
+               },
+               drDisorient = {
                   type="toggle",
                   name=L["Disorient"],
                   get=function(info) return self.db.profile.drList["DISORIENT"] == nil and true or self.db.profile.drList["DISORIENT"] end,
                   set=function(info, value) self.db.profile.drList["DISORIENT"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drSilence = {                  
+               drSilence = {
                   type="toggle",
                   name=L["Silence"],
                   get=function(info) return self.db.profile.drList["SILENCE"] == nil and true or self.db.profile.drList["SILENCE"] end,
                   set=function(info, value) self.db.profile.drList["SILENCE"] = value end,
-                  order=10,      
-               },  
-               drDisarm = {                  
+                  order=10,
+               },
+               drDisarm = {
                   type="toggle",
                   name=L["Disarm"],
                   get=function(info) return self.db.profile.drList["DISARM"] == nil and true or self.db.profile.drList["DISARM"] end,
                   set=function(info, value) self.db.profile.drList["DISARM"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drFear = {                  
+               drFear = {
                   type="toggle",
                   name=L["Fear"],
                   get=function(info) return self.db.profile.drList["FEAR"] == nil and true or self.db.profile.drList["FEAR"] end,
                   set=function(info, value) self.db.profile.drList["FEAR"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drControlledStun = {                  
+               drControlledStun = {
                   type="toggle",
                   name=L["Controlled Stun"],
                   get=function(info) return self.db.profile.drList["CONTROLLEDSTUN"] == nil and true or self.db.profile.drList["CONTROLLEDSTUN"] end,
                   set=function(info, value) self.db.profile.drList["CONTROLLEDSTUN"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drRandomStun = {                  
+               drRandomStun = {
                   type="toggle",
                   name=L["Random Stun"],
                   get=function(info) return self.db.profile.drList["RANDOMSTUN"] == nil and true or self.db.profile.drList["RANDOMSTUN"] end,
                   set=function(info, value) self.db.profile.drList["RANDOMSTUN"] = value end,
-                  order=10,      
-               },  
-               drControlledRoot = {                  
+                  order=10,
+               },
+               drControlledRoot = {
                   type="toggle",
                   name=L["Controlled Root"],
                   get=function(info) return self.db.profile.drList["CONTROLLEDROOT"] == nil and true or self.db.profile.drList["CONTROLLEDROOT"] end,
                   set=function(info, value) self.db.profile.drList["CONTROLLEDROOT"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drRandomRoot = {                  
+               drRandomRoot = {
                   type="toggle",
                   name=L["Random Root"],
                   get=function(info) return self.db.profile.drList["RANDOMROOT"] == nil and true or self.db.profile.drList["RANDOMROOT"] end,
                   set=function(info, value) self.db.profile.drList["RANDOMROOT"] = value end,
-                  order=10,      
-               }, 
-               drHorror = {                  
+                  order=10,
+               },
+               drHorror = {
                   type="toggle",
                   name=L["Horror"],
                   get=function(info) return self.db.profile.drList["HORROR"] == nil and true or self.db.profile.drList["HORROR"] end,
                   set=function(info, value) self.db.profile.drList["HORROR"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drOpenerStun = {                  
+               drOpenerStun = {
                   type="toggle",
                   name=L["Opener Stun"],
                   get=function(info) return self.db.profile.drList["OPENERSTUN"] == nil and true or self.db.profile.drList["OPENERSTUN"] end,
                   set=function(info, value) self.db.profile.drList["OPENERSTUN"] = value end,
-                  order=10,      
-               },  
-               drCharge = {                  
+                  order=10,
+               },
+               drCharge = {
                   type="toggle",
                   name=L["Charge"],
                   get=function(info) return self.db.profile.drList["CHARGE"] == nil and true or self.db.profile.drList["CHARGE"] end,
                   set=function(info, value) self.db.profile.drList["CHARGE"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drMindControl = {                  
+               drMindControl = {
                   type="toggle",
                   name=L["Mind Control"],
                   get=function(info) return self.db.profile.drList["MINDCONTROL"] == nil and true or self.db.profile.drList["MINDCONTROL"] end,
                   set=function(info, value) self.db.profile.drList["MINDCONTROL"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drBanish = {                  
+               drBanish = {
                   type="toggle",
                   name=L["Banish"],
                   get=function(info) return self.db.profile.drList["BANISH"] == nil and true or self.db.profile.drList["BANISH"] end,
                   set=function(info, value) self.db.profile.drList["BANISH"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drEntrapment = {                  
+               drEntrapment = {
                   type="toggle",
                   name=L["Entrapment"],
                   get=function(info) return self.db.profile.drList["ENTRAPMENT"] == nil and true or self.db.profile.drList["ENTRAPMENT"] end,
                   set=function(info, value) self.db.profile.drList["ENTRAPMENT"] = value end,
-                  order=10,      
-               },  
-               drSleep = {                  
+                  order=10,
+               },
+               drSleep = {
                   type="toggle",
                   name=L["Sleep"],
                   get=function(info) return self.db.profile.drList["SLEEP"] == nil and true or self.db.profile.drList["SLEEP"] end,
                   set=function(info, value) self.db.profile.drList["SLEEP"] = value end,
-                  order=10,      
+                  order=10,
                },
-               drCyclone = {                  
+               drCyclone = {
                   type="toggle",
                   name=L["Cyclone"],
                   get=function(info) return self.db.profile.drList["CYCLONE"] == nil and true or self.db.profile.drList["CYCLONE"] end,
                   set=function(info, value) self.db.profile.drList["CYCLONE"] = value end,
-                  order=10,      
-               },              
+                  order=10,
+               },
             },
          },
 		}
 	}
-	
+
 	self.options.args.auras = {
 		type = "group",
 		order = 9,
@@ -1553,7 +1578,7 @@ function Gladius:SetupOptions()
             type="toggle",
             name=L["Show auras"],
             desc=L["Show important auras over the class icon with a timer. You can select which auras to show and their respective priorites in the auralist.lua file"],
-            disabled = function() return not self.db.profile.classIcon end,						
+            disabled = function() return not self.db.profile.classIcon end,
             order=0,
          },
          auraPos = {
@@ -1626,22 +1651,22 @@ function Gladius:SetupOptions()
 			},
 		},
 	}
-	
+
 		-- fix for aura variable that i managed to fuck up in r20
 	if ( type(self.db.profile.auras) == "boolean" ) then
 		self.db.profile.displayAuras = self.db.profile.auras
 		self.db.profile.auras = defaults.profile.auras
 	end
-	
+
 	for i=#(self.db.profile.auras), 1, -1 do
 		if ( not self.db.profile.auras[i].deleted ) then
 			self.options.args.auras.args.list.args[tostring(i)] = SetupAuraOption(i)
 		end
 	end
-	
+
 	Gladius:ConvertAuraList()
-	
-	
+
+
 	self.options.args.cooldowns = {
 		type = "group",
 		order = 10,
@@ -1651,8 +1676,8 @@ function Gladius:SetupOptions()
             type="toggle",
             name=L["Show cooldown icons"],
             order=0,
-         },
-         cooldownPos = {
+		 },
+		 cooldownPos = {
             type="select",
             name=L["Cooldown position"],
             desc=L["Position of the cooldown icons"],
@@ -1661,10 +1686,36 @@ function Gladius:SetupOptions()
                ["LEFT"] = L["Left"],
             },
             order=1,
-         },         
+         },
+		 hideCooldownBorder = {
+            type="toggle",
+            name=L["Hide Cooldown border"],
+            order=5,
+         },
+		 cooldownDesaturate = {
+            type="toggle",
+            name=L["Desaturate used cooldown"],
+            order=10,
+         },
+		 cooldownOpacity = {
+            type="toggle",
+            name=L["Cooldown used Opacity"],
+            order=15,
+         },
+		cooldownOpacityValue = {
+			type="range",
+			name=L["Used cooldown opacity"],
+			min=0,
+			max=1,
+			step=.01,
+			order=16,
+			disabled = function() return not self.db.profile.cooldownOpacity end,
+         },
+
+
 		},
 	}
-	
+
 	for class, spells in pairs(self.cooldownSpells) do
       self.options.args.cooldowns.args[class] = {
          type = "group",
@@ -1689,9 +1740,9 @@ function Gladius:SetupOptions()
                type = "select",
                name = L["Announcement type"],
                desc = L["Where to display the announcement messages"],
-               get=function(info) 
+               get=function(info)
                   local name = info[2]
-                  return self.db.profile.cooldownAnnounceList[name] == nil and "disabled" or self.db.profile.cooldownAnnounceList[name] 
+                  return self.db.profile.cooldownAnnounceList[name] == nil and "disabled" or self.db.profile.cooldownAnnounceList[name]
                end,
                set=function(info, value)
                   local name = info[2]
@@ -1703,7 +1754,7 @@ function Gladius:SetupOptions()
             },
          },
       }
-      
+
       for k,v in pairs(self.cooldownSpells[class]) do
          self.options.args.cooldowns.args[class].args[tostring(k)] = {
             type = "group",
@@ -1728,9 +1779,9 @@ function Gladius:SetupOptions()
                   type = "select",
                   name = L["Announcement type"],
                   desc = L["Where to display the announcement messages"],
-                  get=function(info) 
+                  get=function(info)
                      local name = info[3]
-                     return self.db.profile.cooldownAnnounceList[tonumber(name)] == nil and "disabled" or self.db.profile.cooldownAnnounceList[tonumber(name)] 
+                     return self.db.profile.cooldownAnnounceList[tonumber(name)] == nil and "disabled" or self.db.profile.cooldownAnnounceList[tonumber(name)]
                   end,
                   set=function(info, value)
                      local name = info[3]
@@ -1767,23 +1818,23 @@ function Gladius:SetupOptions()
                         PlaySoundFile(LSM:Fetch(LSM.MediaType.SOUND, self.db.profile.cooldownSoundList[tonumber(name)]))
 							end
 						end,
-					},	
+					},
             },
          }
       end
-	end	
-	
+	end
+
 	self.options.args.clicks = {
 		type = "group",
 		order = 11,
 		name = L["Click actions"],
 		args = {},
 	}
-	
+
 	for i=1, 10 do
 		self.options.args.clicks.args[tostring(i)] = SetupAttributeOption(i)
 	end
-	
+
 	for i=1, 4 do
 		self.options.args.general.args.debuffs.args[tostring(i)] = {
 				type = "input",
@@ -1799,12 +1850,12 @@ function Gladius:SetupOptions()
 				order= i+3,
 		}
 	end
-	
+
 	self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) }
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Gladius", self.options)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Gladius", "Gladius")
 	self:RegisterChatCommand("gladius", slashHandler)
-	
+
 end
 
 function Gladius:ShowOptions()

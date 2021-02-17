@@ -143,6 +143,7 @@ L["/gladius hide"] = "/gladius hide"
 L["/gladius test1-5"] = "/gladius test1-5"
 L["/gladius ui"] = "/gladius ui"
 L["Grid-style icon"] = "Symbole mit Grid-Stil"
+L["Grid-big icon"] = "Symbole mit BIG Grid-Stil"
 L["Grow frame upwards"] = "Rahmen nach oben verlaufen lassen"
 L["Health bar color"] = "Lebensleistenfarbe"
 L["Health bar height"] = "Gesundheitsleistenhöhe"
@@ -245,6 +246,8 @@ L["Show border around focus"] = "Zeige einen Rahmen um den Fokus"
 L["Show border around main assist"] = "Zeige einen Rahmen um den Main Assist"
 L["Show border around target"] = "Zeige einen Rand um das Ziel"
 L["Show cast bars"] = "Zeige Zauberleisten"
+L["Show cast bars on cast"] = "Zeige Zauberleisten on cast"
+L["Show cast bars on casting"] = "Zeige Zauberleisten on cast"
 L["Show class icon"] = "Zeige Klassensymbol"
 L[ [=[Show class icon
 IMPORTANT:
@@ -254,6 +257,7 @@ Wenn dies abgeschaltet wird, werden keine Auren mehr angezeigt auch wenn diese a
 L["Show class text"] = "Zeige Klassentext"
 L["Show class text on the power bar"] = "Zeige Klassentext auf der Energieleiste"
 L["Show cooldown"] = "Zeige Cooldown"
+L["Hide Cooldown border"] = "Hide Cooldown border"
 L["Show cooldown icons"] = "Zeige Cooldownsymbole"
 L["Show DR cooldown icons"] = "Zeige DR Cooldown Symbolen"
 L["Show health percentage"] = "Zeige Prozente der Gesundheit"
@@ -328,5 +332,3 @@ L["Where to display the announcement messages"] = "Wo die Ankündigungsnachricht
 L["Width of the cast bars"] = "Breite der Zauberleiste"
 L["Width of the health and power bars"] = "Breite der Gesundheits und Energieleisten"
 L["Width of the pet bars"] = "Breite der Begleiterleisten"
-
-
