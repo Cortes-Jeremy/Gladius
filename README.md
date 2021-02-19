@@ -18,7 +18,7 @@ Also added more cooldown in the list like hunter readiness that reset other cool
 </a>
 
 <a href="https://user-images.githubusercontent.com/56119078/108537084-7a4ae680-72dd-11eb-956e-00fcbfcfcc55.jpg">
-<img src="https://user-images.githubusercontent.com/56119078/108537084-7a4ae680-72dd-11eb-956e-00fcbfcfcc55.jpg" align="right" width="48.5%">
+<img src="https://user-images.githubusercontent.com/56119078/108537084-7a4ae680-72dd-11eb-956e-00fcbfcfcc55.jpg" align="right" width="30%">
 </a>
 <a href="https://user-images.githubusercontent.com/56119078/108130686-58205100-70b0-11eb-9857-f3e1d38ff727.jpg">
 <img src="https://user-images.githubusercontent.com/56119078/108130686-58205100-70b0-11eb-9857-f3e1d38ff727.jpg" width="48.5%">
