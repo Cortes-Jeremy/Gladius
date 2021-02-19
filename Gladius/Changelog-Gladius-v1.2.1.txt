@@ -1,9 +1,9 @@
-tag v1.2.0
+tag v1.2.1
 c728d6df2e4c16959912975a3ed09400323f5229
 root <root@cfrepos1.curseforge.net>
 2010-07-14 14:36:07 +0000
 
-Tagging as v1.2.0
+Tagging as v1.2.1
 
 
 --------------------

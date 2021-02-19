@@ -4,7 +4,7 @@
 ## Version: v1.2.1
 ## Author: Proditor, Rinu
 ## SavedVariables: GladiusDB
-## OptionalDeps: Ace3, LibStub, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets
+## OptionalDeps: Ace3, LibStub, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibCustomGlow-1.0
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Slash: /gladius
 ## X-LoadOn-InterfaceOptions: Gladius

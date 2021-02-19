@@ -1692,6 +1692,11 @@ function Gladius:SetupOptions()
             name=L["Hide Cooldown border"],
             order=5,
          },
+		 cooldownAuraGlow = {
+            type="toggle",
+            name=L["Glow when cooldown is active"],
+            order=9,
+         },
 		 cooldownDesaturate = {
             type="toggle",
             name=L["Desaturate used cooldown"],

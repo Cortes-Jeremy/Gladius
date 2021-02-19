@@ -1,6 +1,8 @@
 Gladius = LibStub("AceAddon-3.0"):NewAddon("Gladius", "AceEvent-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("Gladius", true)
 local LSM = LibStub("LibSharedMedia-3.0")
+local LCG = LibStub("LibCustomGlow-1.0")
+
 local arenaUnits = {}
 local arenaGUID = {}
 local arenaSpecs = {}
@@ -383,6 +385,7 @@ end
 local DRINK_SPELL = GetSpellInfo(57073)
 local WYVERN_SPELL = GetSpellInfo(49012)
 function Gladius:UNIT_AURA(event, unit)
+
 	if ( arenaUnits[unit] == "playerUnit" ) then
 		local button = self.buttons[unit]
 		if(not button) then return end
@@ -679,6 +682,7 @@ function Gladius:DetectSpec(unit, spec)
                local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
                icon:Show()
                icon.texture:SetTexture(self.spellTextures[k])
+			   icon.spellId = k -- Missing spellID to updated talent frame
 
                button.lastCooldownSpell = button.lastCooldownSpell + 1
             end
@@ -875,34 +879,87 @@ function Gladius:DRPositionIcons(unit)
    end
 end
 
+function Gladius:StartCooldownGlow(unit, spellId, auraType)
+	local button = self.buttons[unit]
+	if not button then return end
+	if (db.cooldownList[spellId] == false and auraType == 'DEBUFF') then return end
+
+	for i=1,button.lastCooldownSpell do -- button.lastCooldownSpell return a number that match max number of detected talent cooldown
+		if (button.spellCooldownFrame["icon" .. i].spellId == spellId) then
+		   	local frame = button.spellCooldownFrame["icon" .. i]
+		   	frame.glowActive = true
+			-- reset desaturated / opacity style while its active
+			frame.cooldown:Hide()
+			if( db.cooldownDesaturate ) then frame.texture:SetDesaturated(0) end
+			if( db.cooldownOpacity ) then frame:SetAlpha(1) end
+			-- set Glow
+		   	if( db.cooldownAuraGlow ) then
+				LCG.ButtonGlow_Start(frame)
+		   	end
+		end
+	end
+
+end
+
+function Gladius:StopCooldownGlow(unit, spellId, auraType)
+	local button = self.buttons[unit]
+	if not button then return end
+	if (db.cooldownList[spellId] == false and auraType == 'BUFF') then return end
+
+	for i=1,14 do
+		if (button.spellCooldownFrame["icon" .. i].spellId == spellId) then
+		   local frame = button.spellCooldownFrame["icon" .. i]
+		   frame.glowActive = false
+			-- desaturated / opacity style if true
+			frame.cooldown:Show()
+			if( db.cooldownDesaturate ) then frame.texture:SetDesaturated(1) end
+			if( db.cooldownOpacity ) then frame:SetAlpha(db.cooldownOpacityValue) end
+			-- set Glow
+		   if( db.cooldownAuraGlow ) then
+				LCG.ButtonGlow_Stop(frame)
+		   end
+		end
+	end
+
+end
+
 --Scan combatlog for enemy deaths and aura fading
-function Gladius:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, ...)
+function Gladius:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, ...) --  spellID, spellName, _, type
 	-- enemy death
 	if (eventType == "PARTY_KILL" and bit.band(destFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) == COMBATLOG_OBJECT_REACTION_HOSTILE) then
 		self:UnitDeath(destGUID)
 
 	elseif ( eventType == "SPELL_AURA_APPLIED" ) then
-		local spellID, spellName = ...
+		local spellID, spellName, _, type = ...
+		-- SetGlow
+		if (arenaGUID[destGUID] ~= nil) then
+			self:StartCooldownGlow(arenaGUID[sourceGUID], spellID, type)
+		end
+		-- Aura check
 		if ( arenaGUID[destGUID] and ( spellID == 49010 or spellID == 49009 or spellID == 27069 or spellID == 24135 or spellID == 24134 or spellID == 24131 ) ) then
 			self.buttons[arenaGUID[destGUID]].wyvernDot = true
-      elseif (arenaGUID[destGUID] and self.drSpellIds[spellName]) then
-         self:DRGain(arenaGUID[destGUID], self.drSpellIds[spellName])
+      	elseif (arenaGUID[destGUID] and self.drSpellIds[spellName]) then
+         	self:DRGain(arenaGUID[destGUID], self.drSpellIds[spellName])
 		end
 
 	elseif (eventType == "SPELL_AURA_REMOVED" or eventType == "SPELL_PERIODIC_AURA_REMOVED" or eventType == "SPELL_AURA_REMOVED_DOSE" or eventType == "SPELL_PERIODIC_AURA_REMOVED_DOSE") then
-		local spellID, spellName = ...
+		local spellID, spellName, _, type = ...
+		-- StopGlow
+		if (arenaGUID[destGUID] ~= nil) then
+			self:StopCooldownGlow(arenaGUID[destGUID], spellID, type)
+		end
 		if ( arenaGUID[destGUID] and ( spellID == 49010 or spellID == 49009 or spellID == 27069 or spellID == 24135 or spellID == 24134 or spellID == 24131 ) ) then
 			self.buttons[arenaGUID[destGUID]].wyvernDot = false
-      elseif (arenaGUID[destGUID] and self.drSpellIds[spellName]) then
-         self:DRFades(arenaGUID[destGUID], spellName)
+      	elseif (arenaGUID[destGUID] and self.drSpellIds[spellName]) then
+         	self:DRFades(arenaGUID[destGUID], spellName)
 		end
 
-   elseif (eventType == "SPELL_AURA_REFRESH") then
-      local spellID, spellName = ...
-      if (arenaGUID[destGUID] and self.drSpellIds[spellName]) then
-         self:DRFades(arenaGUID[destGUID], spellName)
-         self:DRGain(arenaGUID[destGUID], self.drSpellIds[spellName])
-      end
+   	elseif (eventType == "SPELL_AURA_REFRESH") then
+      	local spellID, spellName = ...
+      	if (arenaGUID[destGUID] and self.drSpellIds[spellName]) then
+         	self:DRFades(arenaGUID[destGUID], spellName)
+			self:DRGain(arenaGUID[destGUID], self.drSpellIds[spellName])
+      	end
 
 	elseif ( eventType == "SPELL_CAST_SUCCESS" ) then
 		local spellID, spellName = ...
@@ -956,6 +1013,7 @@ function Gladius:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell, rank)
 end
 
 function Gladius:CooldownUsed(unit, unitClass, spellId, spellName)
+
    local button = self.buttons[unit]
    if not button then return end
    if (db.cooldownList[spellId] == false) then return end
@@ -1017,15 +1075,12 @@ function Gladius:CooldownStart(button, spellId, duration)
          frame.active = true
          frame.timeLeft = duration
          frame.cooldown:SetCooldown(GetTime(), duration)
-		 if( db.cooldownDesaturate ) then
-         	frame.texture:SetDesaturated(1)
-		 end
-		 if( db.cooldownOpacity ) then
-			frame:SetAlpha(db.cooldownOpacityValue)
-		 end
-
-         frame:SetScript("OnUpdate", function(self, elapsed)
-            self.timeLeft = self.timeLeft - elapsed
+		 --
+		 if( db.cooldownDesaturate ) then frame.texture:SetDesaturated(1) end
+		 if( db.cooldownOpacity ) then    frame:SetAlpha(db.cooldownOpacityValue) end
+         --
+		 frame:SetScript("OnUpdate", function(self, elapsed) -- problem here, it seems like 2 cooldown used close one to each other get additionated
+			self.timeLeft = self.timeLeft - elapsed
             if ( self.timeLeft <= 0 ) then
                Gladius:CooldownReady(button, spellId, frame)
             end
@@ -1047,24 +1102,22 @@ function Gladius:CooldownReady(button, spellId, frame)
 			if( db.cooldownOpacity ) then
 			   frame:SetAlpha(1)
 			end
-            frame.cooldown:Hide()
+            --frame.cooldown:Hide() -- no point in hidding
             frame:SetScript("OnUpdate", nil)
          end
       end
 
-   else
-
-      frame.active = false
-	  if( db.cooldownDesaturate ) then
-		frame.texture:SetDesaturated(0)
-	end
-	if( db.cooldownOpacity ) then
-	   frame:SetAlpha(1)
-	end
-      frame.cooldown:Hide()
-      frame:SetScript("OnUpdate", nil)
-
-   end
+   	else
+		frame.active = false
+		if( db.cooldownDesaturate ) then
+			frame.texture:SetDesaturated(0)
+		end
+		if( db.cooldownOpacity ) then
+			frame:SetAlpha(1)
+		end
+		--frame.cooldown:Hide() -- no point in hidding
+		frame:SetScript("OnUpdate", nil)
+   	end
 end
 
 function Gladius:GetTrinketIcon(unit)

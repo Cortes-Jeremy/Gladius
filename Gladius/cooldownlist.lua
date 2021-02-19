@@ -156,7 +156,6 @@ function Gladius:GetCooldownList()
          [781] 	= 15,    -- Disengage
          [5384] 	= 20,    -- Feign Death
          [3045] 	= 20,    -- Rapid Fire
-
          [60192] 	= { cd = 28,                              -- Freezing Arrow
             sharedCD = {
                [14311] = true,       -- Freezing Trap
@@ -176,7 +175,6 @@ function Gladius:GetCooldownList()
             },
          },
          [34600] 	= { cd = 28, },                           -- Snake Trap
-
          [34490] 	= { cd = 20, spec = L["Marksmanship"], }, -- Silencing Shot
          [19386] 	= { cd = 60, spec = L["Survival"], },     -- Wyvern Sting
          [53271] 	= { cd = 60, pet = true, },               -- Masters Call
