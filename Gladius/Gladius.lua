@@ -146,13 +146,18 @@ function Gladius:ClearAllUnits()
 			v.lastAuraName = nil
 
 			-- diminishing return
-         v.diminishingReturn = {}
+         	v.diminishingReturn = {}
 
 			-- reset cooldown tracker
 			for i=1, 14 do
-            local icon = v.spellCooldownFrame["icon" .. i]
-            icon.spellId = nil
-            icon:Hide()
+				local icon = v.spellCooldownFrame["icon" .. i]
+				icon.spellId = nil
+				--reset Glow settings
+				if( icon.glowActive ) then
+					if( db.cooldownAuraGlow ) then LCG.ButtonGlow_Stop(icon) end
+					icon.glowActive = false;
+				end
+				icon:Hide()
 			end
 
 			-- Reset all the cooldown spirals
@@ -160,6 +165,7 @@ function Gladius:ClearAllUnits()
 
 			-- Turn grid trinket icon green again
 			v.gridTrinket:SetBackdropColor(0,1,0,1)
+			v.bigGridTrinket:SetBackdropColor(0,1,0,1)
 
 			-- Reset the trinket "text" to avoid issues with the embedded trinket icon
 			v.trinket:SetText("")
@@ -884,7 +890,8 @@ function Gladius:StartCooldownGlow(unit, spellId, auraType)
 	if not button then return end
 	if (db.cooldownList[spellId] == false and auraType == 'DEBUFF') then return end
 
-	for i=1,button.lastCooldownSpell do -- button.lastCooldownSpell return a number that match max number of detected talent cooldown
+	for i=1,(button.lastCooldownSpell or 14) do -- button.lastCooldownSpell return a number that match max number of detected talent cooldown
+		if (button.spellCooldownFrame["icon" .. i] == nil) then return end
 		if (button.spellCooldownFrame["icon" .. i].spellId == spellId) then
 		   	local frame = button.spellCooldownFrame["icon" .. i]
 		   	frame.glowActive = true
@@ -906,7 +913,7 @@ function Gladius:StopCooldownGlow(unit, spellId, auraType)
 	if not button then return end
 	if (db.cooldownList[spellId] == false and auraType == 'BUFF') then return end
 
-	for i=1,14 do
+	for i=1,(button.lastCooldownSpell or 14) do
 		if (button.spellCooldownFrame["icon" .. i].spellId == spellId) then
 		   local frame = button.spellCooldownFrame["icon" .. i]
 		   frame.glowActive = false
@@ -946,7 +953,7 @@ function Gladius:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, source
 		local spellID, spellName, _, type = ...
 		-- StopGlow
 		if (arenaGUID[destGUID] ~= nil) then
-			self:StopCooldownGlow(arenaGUID[destGUID], spellID, type)
+			self:StopCooldownGlow(arenaGUID[sourceGUID], spellID, type)
 		end
 		if ( arenaGUID[destGUID] and ( spellID == 49010 or spellID == 49009 or spellID == 27069 or spellID == 24135 or spellID == 24134 or spellID == 24131 ) ) then
 			self.buttons[arenaGUID[destGUID]].wyvernDot = false

@@ -971,7 +971,7 @@ function Gladius:UpdateFrame()
 		--the big GRID trinket icon
 		button.bigGridTrinket:SetWidth(classIconSize*db.bigTrinketScale)
 		button.bigGridTrinket:SetHeight((classIconSize+1)*db.bigTrinketScale)
-		button.bigGridTrinket:SetBackdropColor(0,1,0,1)
+		--button.bigGridTrinket:SetBackdropColor(0,1,0,1) -- re-cleaned in ClearAllUnits()
 		button.bigGridTrinket:ClearAllPoints()
 		local parentGrid = db.targetIcon and button.targetIcon or button
 		local bigGridTrinketX = (classIconSize+1)*db.bigTrinketScale
