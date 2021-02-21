@@ -229,17 +229,17 @@ function Gladius:CreateButton(i)
 	local overAbsorbFrame = CreateFrame("Frame", "GladiusAbsorbBar"..i, healthBar) -- hack to get the glow spark over everything
 	-- OverAbsorb
 	absorbBar.overAbsorbGlow = overAbsorbFrame:CreateTexture(nil, "OVERLAY")
-    absorbBar.overAbsorbGlow:SetTexture([[Interface\RaidFrame\Shield-Overshield]])
+    absorbBar.overAbsorbGlow:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overshield]])
     absorbBar.overAbsorbGlow:SetBlendMode("ADD");
     absorbBar.overAbsorbGlow:Hide()
 	-- Total absorb
 	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER", nil, 0)
-	absorbBar.totalAbsorb:SetTexture([[Interface\RaidFrame\Shield-Fill]])
+	absorbBar.totalAbsorb:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Fill]])
     absorbBar.totalAbsorb:Hide()
 	-- Total absorb overlay
 	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER", nil, 1)
 	absorbBar.totalAbsorbOverlay:SetHorizTile(true)
-	absorbBar.totalAbsorbOverlay:SetTexture([[Interface\RaidFrame\Shield-Overlay]], "MIRROR")
+	absorbBar.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], "MIRROR")
 	absorbBar.totalAbsorbOverlay:Hide()
 
 	--Mana bar
