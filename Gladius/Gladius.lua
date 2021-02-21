@@ -2,6 +2,7 @@ Gladius = LibStub("AceAddon-3.0"):NewAddon("Gladius", "AceEvent-3.0", "AceConsol
 local L = LibStub("AceLocale-3.0"):GetLocale("Gladius", true)
 local LSM = LibStub("LibSharedMedia-3.0")
 local LCG = LibStub("LibCustomGlow-1.0")
+local LAM = LibStub:GetLibrary("AbsorbsMonitor-1.0", true)
 
 local arenaUnits = {}
 local arenaGUID = {}
@@ -191,6 +192,7 @@ function Gladius:JoinedArena()
 	-- Enemy events
 	self:RegisterEvent("UNIT_AURA")
 	self:RegisterEvent("UNIT_HEALTH")
+	--self:RegisterEvent("UNIT_MAXHEALTH")
 	self:RegisterEvent("UNIT_MANA", "UNIT_POWER")
 	self:RegisterEvent("UNIT_RAGE", "UNIT_POWER")
 	self:RegisterEvent("UNIT_ENERGY", "UNIT_POWER")
@@ -274,11 +276,14 @@ function Gladius:UNIT_HEALTH(event, unit)
 		local button = self.buttons[unit]
 		if(not button) then return end
 
+		-- update absorb bar
+		Gladius:UpdateAbsorb(event, unit, button)
+
 		-- show the button
 		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
-         if (not button:IsShown()) then button:Show() end
-         if (button:GetAlpha() < 1) then button:SetAlpha(1) end
-      end
+			if (not button:IsShown()) then button:Show() end
+			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
+		end
 
 		if(not UnitIsDeadOrGhost(unit)) then
 			local currentHealth, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
@@ -396,11 +401,14 @@ function Gladius:UNIT_AURA(event, unit)
 		local button = self.buttons[unit]
 		if(not button) then return end
 
+		-- update absorb bar
+		Gladius:UpdateAbsorb(event, unit, button)
+
 		-- show the button
 		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
-         if (not button:IsShown()) then button:Show() end
-         if (button:GetAlpha() < 1) then button:SetAlpha(1) end
-      end
+			if (not button:IsShown()) then button:Show() end
+			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
+		end
 
 		local aura = button.auraFrame
 		local index = 1
@@ -419,10 +427,10 @@ function Gladius:UNIT_AURA(event, unit)
 				auraExpTime = expirationTime
 
 				-- announce aura gain
-            if((db.auraAnnounce or (db.auraAnnounceList[auraName] and db.auraAnnounceList[auraName] ~= "disabled")) and (not button.lastAuraName or auraName ~= button.lastAuraName)) then
-               self:SendAnnouncement(string.format(L["AURA GAIN: %s (%s) - %s for %s seconds"], UnitName(unit), UnitClass(unit), auraName, ceil(auraExpTime - GetTime())), RAID_CLASS_COLORS[select(2, UnitClass(unit))], db.auraAnnounceList[auraName] and db.auraAnnounceList[auraName] or db.announceType)
-               button.lastAuraName = auraName
-            end
+				if((db.auraAnnounce or (db.auraAnnounceList[auraName] and db.auraAnnounceList[auraName] ~= "disabled")) and (not button.lastAuraName or auraName ~= button.lastAuraName)) then
+					self:SendAnnouncement(string.format(L["AURA GAIN: %s (%s) - %s for %s seconds"], UnitName(unit), UnitClass(unit), auraName, ceil(auraExpTime - GetTime())), RAID_CLASS_COLORS[select(2, UnitClass(unit))], db.auraAnnounceList[auraName] and db.auraAnnounceList[auraName] or db.announceType)
+					button.lastAuraName = auraName
+				end
 			end
 
 			-- Spec detection
@@ -474,6 +482,7 @@ function Gladius:UNIT_AURA(event, unit)
 				end
 			end
 		end
+
 	end
 end
 
@@ -1665,6 +1674,59 @@ function Gladius:Test()
 		button.classIcon:SetAlpha(1)
 		button:SetAlpha(1)
 		button:Show()
+	end
+
+end
+
+-- Absorb Update
+function Gladius:UpdateAbsorb(event, unit, button)
+
+	local health    = UnitHealth(unit)
+	local maxHealth = UnitHealthMax(unit)
+	local _guid     = UnitGUID(unit)
+	local myCurrentHealAbsorb = LAM.Unit_Total(_guid)
+
+	--LAM.SetLowValueTolerance(0)
+	--print("unit: "..unit.." | "..myCurrentHealAbsorb)
+
+	--
+	function CompactUnitFrameUtil_UpdateFillBar(self, frame, previousTexture, health, myCurrentHealAbsorb)
+		local totalWidth, totalHeight = frame:GetSize();
+		local prevWidth, prevHeight = previousTexture:GetSize();
+		local amout = (health + myCurrentHealAbsorb) / maxHealth
+		local barOffsetX = (health / maxHealth) * totalWidth
+		local barOffsetXPercent = previousTexture:GetWidth() * amout
+
+		local barSize = barOffsetXPercent - barOffsetX
+		if barSize + barOffsetX > totalWidth then
+			barSize = totalWidth - barOffsetX
+		end
+
+		self:ClearAllPoints()
+		self:SetPoint("LEFT", previousTexture:GetStatusBarTexture(), "RIGHT")
+		self:SetSize(barSize, previousTexture:GetHeight())
+		self:Show()
+	end
+	--
+
+	if ( myCurrentHealAbsorb > 0 and health < maxHealth ) then
+		CompactUnitFrameUtil_UpdateFillBar(button.absorb.totalAbsorbOverlay, button, button.health, health, myCurrentHealAbsorb)
+		CompactUnitFrameUtil_UpdateFillBar(button.absorb.totalAbsorb,        button, button.health, health, myCurrentHealAbsorb)
+	else
+		button.absorb.totalAbsorbOverlay:Hide()
+		button.absorb.totalAbsorb:Hide()
+	end
+
+	local overAbsorb = false;
+	if ( health - myCurrentHealAbsorb  > maxHealth  or  health + myCurrentHealAbsorb > maxHealth ) then
+		overAbsorb = true;
+		myCurrentHealAbsorb = max(0, maxHealth - health);
+	end
+
+	if ( overAbsorb ) then
+		button.absorb.overAbsorbGlow:Show();
+	else
+		button.absorb.overAbsorbGlow:Hide();
 	end
 
 end
