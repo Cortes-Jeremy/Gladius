@@ -269,6 +269,10 @@ function Gladius:CreateButton(i)
     castBar.icon:SetPoint("RIGHT", castBar, "LEFT")
     castBar.icon:SetTexCoord(0.1,0.9,0.1,0.9)
 
+	castBar.spark = castBar:CreateTexture(nil, "OVERLAY")
+	castBar.spark:SetTexture([[Interface\AddOns\Gladius\media\CastBar\ui-castingbar-spark2]])
+    castBar.spark:SetBlendMode("ADD")
+
     if (db.castBar) then
 		castBar:Show()
 	end
@@ -884,6 +888,16 @@ function Gladius:UpdateFrame()
 		button.castBar.bg:SetPoint("RIGHT",button.castBar,"RIGHT")
 		button.castBar.bg:SetWidth(button.castBar:GetWidth()+db.castBarHeight)
 		button.castBar.bg:SetHeight(button.castBar:GetHeight())
+
+		button.castBar.spark:ClearAllPoints()
+		button.castBar.spark:SetPoint("LEFT", button.castBar:GetStatusBarTexture(), "RIGHT", -16/2, 0)
+		button.castBar.spark:SetSize(16, button.castBar:GetHeight())
+
+		if (not db.castBarSpark) then
+			button.castBar.spark:Hide()
+		else
+			button.castBar.spark:Show()
+		end
 
 		if (not db.castBar) then
 			button.castBar:Hide()
