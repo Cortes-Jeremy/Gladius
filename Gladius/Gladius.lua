@@ -277,7 +277,9 @@ function Gladius:UNIT_HEALTH(event, unit)
 		if(not button) then return end
 
 		-- update absorb bar
-		Gladius:UpdateAbsorb(event, unit, button)
+		if( db.absorbBar ) then
+			Gladius:UpdateAbsorb(event, unit, button)
+		end
 
 		-- show the button
 		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
@@ -402,7 +404,9 @@ function Gladius:UNIT_AURA(event, unit)
 		if(not button) then return end
 
 		-- update absorb bar
-		Gladius:UpdateAbsorb(event, unit, button)
+		if( db.absorbBar) then
+			Gladius:UpdateAbsorb(event, unit, button)
+		end
 
 		-- show the button
 		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then

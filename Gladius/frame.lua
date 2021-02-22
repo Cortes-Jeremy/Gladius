@@ -226,7 +226,7 @@ function Gladius:CreateButton(i)
 
 	-- AbsorbBar
 	local absorbBar       = CreateFrame("Frame", "GladiusAbsorbBar"..i, button)
-	local overAbsorbFrame = CreateFrame("Frame", "GladiusAbsorbBar"..i, healthBar) -- hack to get the glow spark over everything
+	local overAbsorbFrame = CreateFrame("Frame", "GladiusOverAbsorbGlow"..i, healthBar) -- hack to get the glow spark over everything
 	-- OverAbsorb
 	absorbBar.overAbsorbGlow = overAbsorbFrame:CreateTexture(nil, "OVERLAY")
     absorbBar.overAbsorbGlow:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overshield]])
@@ -782,8 +782,8 @@ function Gladius:UpdateFrame()
 		-- absorb bar location and size
 		-- OverAbsorb
 		button.absorb.overAbsorbGlow:ClearAllPoints()
-		button.absorb.overAbsorbGlow:SetPoint("RIGHT", button.health, "RIGHT", 6, 0)
-		button.absorb.overAbsorbGlow:SetSize(12, button.health:GetHeight())
+		button.absorb.overAbsorbGlow:SetPoint("RIGHT", button.health, "RIGHT", 7, 0)
+		button.absorb.overAbsorbGlow:SetSize(12, button.health:GetHeight() + 4)
 		-- Total absorb
 		button.absorb.totalAbsorb:ClearAllPoints()
 		button.absorb.totalAbsorb:SetPoint("RIGHT", button.health, "RIGHT")
@@ -991,9 +991,10 @@ function Gladius:UpdateFrame()
 		button.bigTrinket:SetTexture(Gladius:GetTrinketIcon("player", false))
 		button.bigTrinket:ClearAllPoints()
 		local parent = db.targetIcon and button.targetIcon or button
-		local bigTrinketX = (classIconSize+1)*db.bigTrinketScale
+		local bigTrinketX = (classIconSize+1)*db.bigTrinketScale + db.bigTrinketOffsetX
+		local bigTrinketY = db.bigTrinketOffsetY
 		if (db.classIcon and db.auraPos == "RIGHT" and db.targetIcon) then bigTrinketX = 2*(classIconSize+1)*db.bigTrinketScale end
-		button.bigTrinket:SetPoint("TOPRIGHT", parent ,"TOPRIGHT", bigTrinketX, 0)
+		button.bigTrinket:SetPoint("TOPRIGHT", parent ,"TOPRIGHT", bigTrinketX, bigTrinketY)
 
 		if (db.trinketDisplay ~= "bigIcon") then
 			button.bigTrinket:Hide()
@@ -1006,9 +1007,10 @@ function Gladius:UpdateFrame()
 		button.bigGridTrinket:SetHeight((classIconSize+1)*db.bigTrinketScale)
 		button.bigGridTrinket:ClearAllPoints()
 		local parentGrid = db.targetIcon and button.targetIcon or button
-		local bigGridTrinketX = (classIconSize+1)*db.bigTrinketScale
+		local bigGridTrinketX = (classIconSize+1)*db.bigTrinketScale + db.bigTrinketOffsetX
+		local bigGridTrinketY = db.bigTrinketOffsetY
 		if (db.classIcon and db.auraPos == "RIGHT" and db.targetIcon) then bigGridTrinketX = 2*(classIconSize+1)*db.bigTrinketScale end
-		button.bigGridTrinket:SetPoint("TOPRIGHT", parentGrid ,"TOPRIGHT", bigGridTrinketX, 0)
+		button.bigGridTrinket:SetPoint("TOPRIGHT", parentGrid ,"TOPRIGHT", bigGridTrinketX, bigGridTrinketY)
 
 		if (db.trinketDisplay ~= "bigGridIcon") then
 			button.bigGridTrinket:Hide()
@@ -1396,9 +1398,15 @@ function Gladius:UpdateFrame()
 			button.healthText:SetText(healthText)
 
 			--set fake absorb value
-			button.absorb.overAbsorbGlow:Show()
-			button.absorb.totalAbsorb:Show()
-			button.absorb.totalAbsorbOverlay:Show()
+			if( db.absorbBar ) then
+				button.absorb.overAbsorbGlow:Show()
+				button.absorb.totalAbsorb:Show()
+				button.absorb.totalAbsorbOverlay:Show()
+			else
+				button.absorb.overAbsorbGlow:Hide()
+				button.absorb.totalAbsorb:Hide()
+				button.absorb.totalAbsorbOverlay:Hide()
+			end
 
 			--set the mana text
 			local currentMana, maxMana = button.manaActual, button.manaMax
