@@ -80,6 +80,7 @@ local defaults = {
 		raceText=true,
 		specText=true,
 		castBar=true,
+		castBarSpark=true,
 		powerBar=true,
 		classIcon=true,
 		targetIcon=false,
@@ -772,17 +773,23 @@ function Gladius:SetupOptions()
 						desc=L["Show cast bars"],
 						order=1,
 					},
+					castBarSpark = {
+						type="toggle",
+						name=L["Show cast bars spark"],
+						desc=L["Show cast bars spark"],
+						order=3,
+					},
 					castBarOnCast = {
 						type="toggle",
 						name=L["Show cast bars on cast"],
 						desc=L["Show cast bars on casting"],
-						order=2,
+						order=4,
 					},
 					hideSpellRank = {
 						type="toggle",
 						name=L["Hide spell rank"],
 						desc=L["Hide spell rankD"],
-						order=3,
+						order=5,
 					},
 					showPets = {
 						type="toggle",
