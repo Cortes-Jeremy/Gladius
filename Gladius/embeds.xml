@@ -12,5 +12,7 @@
 <Include file="libs\AceEvent-3.0\AceEvent-3.0.xml"/>
 <Include file="libs\LibSharedMedia-3.0\lib.xml"/>
 <Include file="libs\AceGUI-3.0-SharedMediaWidgets\widget.xml"/>
+<Include file="libs\LibCustomGlow-1.0\LibCustomGlow-1.0.xml"/>
+<Include file="libs\AbsorbsMonitor-1.0\AbsorbsMonitor-1.0.xml"/>
 
 </Ui>
