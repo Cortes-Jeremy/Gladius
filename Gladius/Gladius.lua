@@ -929,6 +929,7 @@ function Gladius:StopCooldownGlow(unit, spellId, auraType)
 	if (db.cooldownList[spellId] == false and auraType == 'BUFF') then return end
 
 	for i=1,(button.lastCooldownSpell or 14) do
+		if (button.spellCooldownFrame["icon" .. i] == nil) then return end
 		if (button.spellCooldownFrame["icon" .. i].spellId == spellId) then
 		   local frame = button.spellCooldownFrame["icon" .. i]
 		   frame.glowActive = false
