@@ -277,7 +277,7 @@ function Gladius:UNIT_HEALTH(event, unit)
 		if(not button) then return end
 
 		-- update absorb bar
-		if( db.absorbBar ) then
+		if( db.absorbBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then --hardcode for now to avoid checking pet
 			Gladius:UpdateAbsorb(event, unit, button)
 		end
 
@@ -404,7 +404,7 @@ function Gladius:UNIT_AURA(event, unit)
 		if(not button) then return end
 
 		-- update absorb bar
-		if( db.absorbBar) then
+		if( db.absorbBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then --hardcode for now to avoid checking pet
 			Gladius:UpdateAbsorb(event, unit, button)
 		end
 
@@ -679,35 +679,37 @@ function Gladius:DetectSpec(unit, spec)
 
 	-- update cooldown tracker
 	if (db.cooldown) then
-      local class = select(2, UnitClass(unit))
-      for k,v in pairs(self.cooldownSpells[class]) do
-         if (db.cooldownList[k] ~= false and db.cooldownList[class] ~= false) then
-            if (type(v) == "table" and ((v.spec ~= nil and v.spec == spec) or (v.notSpec ~= nil and v.notSpec ~= spec))) then
-               local button = self.buttons[unit]
+		local class = select(2, UnitClass(unit))
+		if(self.cooldownSpells[class] ~= nil) then
+			for k,v in pairs(self.cooldownSpells[class]) do
+				if (db.cooldownList[k] ~= false and db.cooldownList[class] ~= false) then
+					if (type(v) == "table" and ((v.spec ~= nil and v.spec == spec) or (v.notSpec ~= nil and v.notSpec ~= spec))) then
+					local button = self.buttons[unit]
 
-               local sharedCD = false
-               if (type(v) == "table" and v.sharedCD ~= nil and v.sharedCD.cd == nil) then
-                  for spellId, _ in pairs(v.sharedCD) do
-                     for i=1, button.lastCooldownSpell do
-                        local icon = button.spellCooldownFrame["icon" .. i]
-                        if (icon.spellId == spellId) then
-                           sharedCD = true
-                        end
-                     end
-                  end
-               end
-               if sharedCD then return end
+					local sharedCD = false
+					if (type(v) == "table" and v.sharedCD ~= nil and v.sharedCD.cd == nil) then
+						for spellId, _ in pairs(v.sharedCD) do
+							for i=1, button.lastCooldownSpell do
+								local icon = button.spellCooldownFrame["icon" .. i]
+								if (icon.spellId == spellId) then
+								sharedCD = true
+								end
+							end
+						end
+					end
+					if sharedCD then return end
 
-               local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
-               icon:Show()
-               icon.texture:SetTexture(self.spellTextures[k])
-			   icon.spellId = k -- Missing spellID to updated talent frame
+					local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
+					icon:Show()
+					icon.texture:SetTexture(self.spellTextures[k])
+					icon.spellId = k -- Missing spellID to updated talent frame
 
-               button.lastCooldownSpell = button.lastCooldownSpell + 1
-            end
-         end
-      end
-   end
+					button.lastCooldownSpell = button.lastCooldownSpell + 1
+					end
+				end
+			end
+		end
+	end
 
 	if( db.specAnnounce ) then
 		self:SendAnnouncement(string.format(L["SPEC DETECTED: %s - %s %s"], UnitName(unit), spec, UnitClass(unit)), RAID_CLASS_COLORS[select(2,UnitClass(unit))])
