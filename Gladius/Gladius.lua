@@ -628,7 +628,7 @@ function Gladius:UNIT_SPELLCAST_START(event, unit)
 		castBar.timeText:SetText(maxValue)
 		castBar.icon:SetTexture(icon)
 
-		if( rank ~= "" and not hideSpellRank ) then
+		if( rank ~= "" and not db.hideSpellRank ) then
 			castBar.spellText:SetFormattedText("%s (%s)", spell, rank)
 		else
 			castBar.spellText:SetText(spell)
@@ -662,7 +662,7 @@ function Gladius:UNIT_SPELLCAST_CHANNEL_START(event, unit)
 		castBar.timeText:SetText(maxValue)
 		castBar.icon:SetTexture(icon)
 
-		if( rank ~= "" and not hideSpellRank ) then
+		if( rank ~= "" and not db.hideSpellRank ) then
 			castBar.spellText:SetFormattedText("%s (%s)", spell, rank)
 		else
 			castBar.spellText:SetText(spell)
