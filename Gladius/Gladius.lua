@@ -270,6 +270,45 @@ function Gladius:LeftArena()
 	self.frame:Hide()
 end
 
+-- Health bar Loss Animation
+function Gladius:UpdateCutaway(button, curH, maxH)
+
+	local curHealthNorm = curH / maxH -- normalized (0->1)
+
+	-- First time it run there is no previous value so we pretend max
+	if not button.cutaway.previousValue then button.cutaway.previousValue = 1 end
+	-- Not animating for Health Gain
+	if(button.cutaway.previousValue and button.cutaway.previousValue < curHealthNorm) then
+		-- Check if old animation is already playing and stop it
+		if(button.cutaway.anim:IsPlaying()) then
+			button.cutaway.anim:Stop()
+			button.cutaway.anim:Hide()
+		end
+		button.cutaway.previousValue  = curHealthNorm
+		return
+	end
+
+	-- RED Health Loss
+	if(button.cutaway.previousValue and math.abs(curHealthNorm - button.cutaway.previousValue) > 0.001) then
+		-- Check if old animation is already playing and stop it
+		if(button.cutaway.anim:IsPlaying()) then
+			button.cutaway.anim:Stop()
+			button.cutaway.bar:Hide()
+		end
+		--
+		local low = curHealthNorm > button.cutaway.previousValue and button.cutaway.previousValue or curHealthNorm
+		local diff = math.abs(button.cutaway.previousValue - curHealthNorm)
+		button.cutaway.bar:ClearAllPoints()
+		button.cutaway.bar:SetPoint("TOPLEFT", button.health, low*button.health:GetWidth(), 0)
+		button.cutaway.bar:SetWidth(diff*button.health:GetWidth())
+		button.cutaway.bar:Show()
+		button.cutaway.anim:Play()
+		button.cutaway.anim:SetScript("OnFinished", function() cutaway.bar:Hide() end)
+	end
+	button.cutaway.previousValue  = curHealthNorm
+
+end
+
 --Update units health
 function Gladius:UNIT_HEALTH(event, unit)
 	if (arenaUnits[unit]) then
@@ -315,6 +354,10 @@ function Gladius:UNIT_HEALTH(event, unit)
 
 			button.healthText:SetText(healthText)
 			button.health:SetValue(healthPercent)
+
+			if ( db.cutawayBar ) then
+				Gladius:UpdateCutaway(button, currentHealth, maxHealth)
+			end
 
 			-- display low health announcement
 			if ( db.lowHealthAnnounce and healthPercent <= db.lowHealthPercentage and not button.lowHealth and (not button.healthThrottle or GetTime() > button.healthThrottle) and button.name ) then

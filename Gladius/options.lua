@@ -803,6 +803,12 @@ function Gladius:SetupOptions()
 						desc=L["Show absorb bars"],
 						order=16,
 					},
+					cutawayBar = {
+						type="toggle",
+						name=L["Show cutaway bars"],
+						desc=L["Show cutaway bars"],
+						order=17,
+					},
 					powerBar = {
 						type="toggle",
 						name=L["Show power bars"],

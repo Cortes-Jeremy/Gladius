@@ -224,6 +224,20 @@ function Gladius:CreateButton(i)
     healthBar.highlight:SetAllPoints(healthBar)
     healthBar.highlight:Hide()
 
+	-- Health bar loss animation
+	local cutaway = CreateFrame("Frame", "GladiusCutawayBar"..i, healthBar)
+	cutaway:SetFrameLevel(healthBar:GetFrameLevel() + 10)
+	cutaway.bar = cutaway:CreateTexture(nil, "OVERLAY") -- b.BS
+	cutaway.bar:SetAlpha(1) -- set from alpha
+	cutaway.bar:Hide()
+	--
+	cutaway.anim    = cutaway.bar:CreateAnimationGroup()
+	cutaway.anim.s1 = cutaway.anim:CreateAnimation("Scale")
+	cutaway.anim.s1:SetScale(0,1)
+	cutaway.anim.s1:SetOrigin("LEFT", 0, 0)
+	cutaway.anim.s1:SetDuration(0.475)
+	cutaway.anim.s1:SetSmoothing("OUT")
+
 	-- AbsorbBar
 	local absorbBar       = CreateFrame("Frame", "GladiusAbsorbBar"..i, button)
 	local overAbsorbFrame = CreateFrame("Frame", "GladiusOverAbsorbGlow"..i, healthBar) -- hack to get the glow spark over everything
@@ -234,7 +248,6 @@ function Gladius:CreateButton(i)
     absorbBar.overAbsorbGlow:Hide()
 	-- Total absorb
 	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER", nil, 0)
-	absorbBar.totalAbsorb:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Fill]])
     absorbBar.totalAbsorb:Hide()
 	-- Total absorb overlay
 	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER", nil, 1)
@@ -452,6 +465,7 @@ function Gladius:CreateButton(i)
 
     button.mana = manaBar
     button.health = healthBar
+    button.cutaway = cutaway
     button.absorb = absorbBar
     button.castBar = castBar
     button.castBar.timeText = castBarTextTime
@@ -783,19 +797,25 @@ function Gladius:UpdateFrame()
 		DisableTexTiling(button.health:GetStatusBarTexture())
 		DisableTexTiling(button.health.bg)
 
+		-- Health bar loss animation (textures, size, position)
+		button.cutaway.bar:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
+		button.cutaway.bar:SetVertexColor(255/255, 0/255, 0/255, 1) -- texture color
+		button.cutaway.bar:SetSize(0, button.health:GetHeight())
+
 		-- absorb bar location and size
 		-- OverAbsorb
 		button.absorb.overAbsorbGlow:ClearAllPoints()
-		button.absorb.overAbsorbGlow:SetPoint("RIGHT", button.health, "RIGHT", 7, 0)
-		button.absorb.overAbsorbGlow:SetSize(12, button.health:GetHeight() + 4)
+		button.absorb.overAbsorbGlow:SetPoint("RIGHT", button.health, "RIGHT", 6, 0)
+		button.absorb.overAbsorbGlow:SetSize(12, button.health:GetHeight())
 		-- Total absorb
 		button.absorb.totalAbsorb:ClearAllPoints()
+		button.absorb.totalAbsorb:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
 		button.absorb.totalAbsorb:SetPoint("RIGHT", button.health, "RIGHT")
-		button.absorb.totalAbsorb:SetSize(15, button.health:GetHeight())
+		button.absorb.totalAbsorb:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
 		-- Total absorb overlay
 		button.absorb.totalAbsorbOverlay:ClearAllPoints()
 		button.absorb.totalAbsorbOverlay:SetPoint("RIGHT", button.health, "RIGHT")
-		button.absorb.totalAbsorbOverlay:SetSize(15, button.health:GetHeight()) -- -15
+		button.absorb.totalAbsorbOverlay:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
 
 		--mana bar location, size and texture
 		button.mana:ClearAllPoints()
