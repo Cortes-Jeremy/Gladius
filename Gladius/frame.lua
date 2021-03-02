@@ -44,7 +44,7 @@ local function CastUpdate(self, elapsed)
 	end
 end
 
-local function StyleActionButton(f)
+local function StyleActionButton(f, hideBorder, iconPadding)
 	local name = f:GetName()
 	local button  = _G[name]
 	local icon  = _G[name.."Icon"]
@@ -56,9 +56,21 @@ local function StyleActionButton(f)
 
 	button:SetNormalTexture("Interface\\AddOns\\Gladius\\images\\clean")
 
+	if hideBorder then
+		normalTex:SetAlpha(0)
+	else
+		normalTex:SetAlpha(1)
+	end
+
 	icon:SetTexCoord(0.1,0.9,0.1,0.9)
-	icon:SetPoint("TOPLEFT", button, "TOPLEFT", 2, -2)
-	icon:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 2)
+
+	if iconPadding then
+		icon:SetPoint("TOPLEFT", button, "TOPLEFT", iconPadding, -iconPadding)
+		icon:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -iconPadding, iconPadding)
+	else
+		icon:SetPoint("TOPLEFT", button, "TOPLEFT", 2, -2)
+		icon:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 2)
+	end
 
 	--normalTex:SetVertexColor(1,1,1,1)
 end
@@ -333,9 +345,6 @@ function Gladius:CreateButton(i)
 	for x=1, 14 do
 		local icon = CreateFrame("CheckButton", "Gladius"..i.."SpellCooldownFrame"..x, spellCooldownFrame, "ActionButtonTemplate")
 		icon:EnableMouse(false)
-		if( db.hideCooldownBorder ) then
-			icon:GetNormalTexture():SetTexCoord(1,1,1,1) -- force removal of ugly black square
-		end
 		icon.texture = _G[icon:GetName().."Icon"]
 		icon.cooldown = _G[icon:GetName().."Cooldown"]
 		icon.cooldown:SetReverse(false)
@@ -1227,7 +1236,13 @@ function Gladius:UpdateFrame()
 			button.spellCooldownFrame:SetHeight(db.barHeight+extraBarHeight)
 			button.spellCooldownFrame:SetWidth(db.barHeight+extraBarHeight)
 
-         	-- Update each cooldown icon
+			-- Update each cooldown icon
+			local iconPadding = 0
+			if db.cooldownIconPadding then
+				iconPadding = db.cooldownIconPadding
+			else
+				iconPadding = 2 -- default
+			end
 			for i=1,14 do
 				local icon = button.spellCooldownFrame["icon"..i]
 				icon:SetHeight(button.spellCooldownFrame:GetHeight()/2)
@@ -1238,17 +1253,17 @@ function Gladius:UpdateFrame()
 					if(i==1) then
 						icon:SetPoint("TOPLEFT",button.spellCooldownFrame)
 					elseif(i==2) then
-						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-1)
+						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-iconPadding)
 					elseif(i>=3) then
-						icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-2],"RIGHT",1,0)
+						icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-2],"RIGHT",iconPadding,0)
 					end
 				else
 					if(i==1) then
 						icon:SetPoint("TOPRIGHT",button.spellCooldownFrame)
 					elseif(i==2) then
-						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-1)
+						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-iconPadding)
 					elseif(i>=3) then
-						icon:SetPoint("RIGHT",button.spellCooldownFrame["icon"..i-2],"LEFT",-1,0)
+						icon:SetPoint("RIGHT",button.spellCooldownFrame["icon"..i-2],"LEFT",-iconPadding,0)
 					end
 				end
 
@@ -1261,7 +1276,11 @@ function Gladius:UpdateFrame()
 				icon.spellId = nil
 				icon:SetAlpha(1)
 				icon.texture:SetTexture("Interface\\Icons\\Spell_Holy_PainSupression")
-				StyleActionButton(icon)
+				if db.hideCooldownBorder then
+					StyleActionButton(icon, true, iconPadding)
+				else
+					StyleActionButton(icon, false, iconPadding)
+				end
 
 				if (not self.frame.testing) then
 					icon:Hide()

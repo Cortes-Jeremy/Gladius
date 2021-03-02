@@ -11,7 +11,7 @@ local spellCache
 
 local defaults = {
 	profile = {
-	   x=0,
+		x=0,
 		y=0,
 		frameScale = 1,
 		barWidth=150,
@@ -119,7 +119,18 @@ local defaults = {
 		debuffFontSize = 13,
 		debuffPos = "RIGHT",
 		debuffs = {},
+		castBarSpark = true,
+		castBarOnCast = true,
+		hideSpellRank = true,
+		absorbBar = false,
+		cutawayBar = false,
 		cooldown = false,
+		cooldownIconPadding = 2,
+		hideCooldownBorder = false,
+		cooldownAuraGlow = true,
+		cooldownDesaturate = true,
+		cooldownOpacity = false,
+		cooldownOpacityValue = 0.5,
 		cooldownPos = "RIGHT",
 		cooldownAnnounce = false,
 		cooldownAnnounceList = {},
@@ -1713,52 +1724,58 @@ function Gladius:SetupOptions()
 		order = 10,
 		name = L["Cooldowns"],
 		args = {
-         cooldown = {
-            type="toggle",
-            name=L["Show cooldown icons"],
-            order=0,
-		 },
-		 cooldownPos = {
-            type="select",
-            name=L["Cooldown position"],
-            desc=L["Position of the cooldown icons"],
-            values = {
-               ["RIGHT"] = L["Right"],
-               ["LEFT"] = L["Left"],
-            },
-            order=1,
-         },
-		 hideCooldownBorder = {
-            type="toggle",
-            name=L["Hide Cooldown border"],
-            order=5,
-         },
-		 cooldownAuraGlow = {
-            type="toggle",
-            name=L["Glow when cooldown is active"],
-            order=9,
-         },
-		 cooldownDesaturate = {
-            type="toggle",
-            name=L["Desaturate used cooldown"],
-            order=10,
-         },
-		 cooldownOpacity = {
-            type="toggle",
-            name=L["Cooldown used Opacity"],
-            order=15,
-         },
-		cooldownOpacityValue = {
-			type="range",
-			name=L["Used cooldown opacity"],
-			min=0,
-			max=1,
-			step=.01,
-			order=16,
-			disabled = function() return not self.db.profile.cooldownOpacity end,
-         },
-
-
+			cooldown = {
+				type="toggle",
+				name=L["Show cooldown icons"],
+				order=0,
+			},
+			cooldownPos = {
+				type="select",
+				name=L["Cooldown position"],
+				desc=L["Position of the cooldown icons"],
+				values = {
+					["RIGHT"] = L["Right"],
+					["LEFT"] = L["Left"],
+				},
+				order=1,
+			},
+			hideCooldownBorder = {
+				type="toggle",
+				name=L["Hide Cooldown border"],
+				order=5,
+			},
+			cooldownIconPadding = {
+				type="range",
+				name=L["Cooldown icon padding"],
+				min=0,
+				max=5,
+				step=0.1,
+				order=6,
+			},
+			cooldownAuraGlow = {
+				type="toggle",
+				name=L["Glow when cooldown is active"],
+				order=9,
+			},
+			cooldownDesaturate = {
+				type="toggle",
+				name=L["Desaturate used cooldown"],
+				order=10,
+			},
+			cooldownOpacity = {
+				type="toggle",
+				name=L["Cooldown used Opacity"],
+				order=15,
+			},
+			cooldownOpacityValue = {
+				type="range",
+				name=L["Used cooldown opacity"],
+				min=0,
+				max=1,
+				step=.01,
+				order=16,
+				disabled = function() return not self.db.profile.cooldownOpacity end,
+			},
 		},
 	}
 
