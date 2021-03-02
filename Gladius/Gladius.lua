@@ -270,21 +270,67 @@ function Gladius:LeftArena()
 	self.frame:Hide()
 end
 
+-- Health bar Loss Animation
+function Gladius:UpdateCutaway(button, curH, maxH)
+
+	local curHealthNorm = curH / maxH -- normalized (0->1)
+
+	-- First time it run there is no previous value so we pretend max
+	if not button.cutaway.previousValue then button.cutaway.previousValue = 1 end
+	-- Not animating for Health Gain
+	if(button.cutaway.previousValue and button.cutaway.previousValue < curHealthNorm) then
+		-- Check if old animation is already playing and stop it
+		if(button.cutaway.anim:IsPlaying()) then
+			button.cutaway.anim:Stop()
+			button.cutaway.bar:Hide()
+		end
+		button.cutaway.previousValue  = curHealthNorm
+		return
+	end
+
+	-- RED Health Loss
+	if(button.cutaway.previousValue and math.abs(curHealthNorm - button.cutaway.previousValue) > 0.001) then
+		-- Check if old animation is already playing and stop it
+		if(button.cutaway.anim:IsPlaying()) then
+			button.cutaway.anim:Stop()
+			button.cutaway.bar:Hide()
+		end
+		--
+		local padding = 2
+		local low = curHealthNorm > button.cutaway.previousValue and button.cutaway.previousValue or curHealthNorm
+		local diff = math.abs(button.cutaway.previousValue - curHealthNorm)
+		button.cutaway.bar:ClearAllPoints()
+		button.cutaway.bar:SetPoint("TOPLEFT", button.health, low*button.health:GetWidth() - padding, 0)
+		button.cutaway.bar:SetWidth(diff*button.health:GetWidth())
+		button.cutaway.bar:Show()
+		button.cutaway.anim:Play()
+		button.cutaway.anim:SetScript("OnFinished", function() button.cutaway.bar:Hide() end)
+	end
+	button.cutaway.previousValue  = curHealthNorm
+
+end
+
 --Update units health
 function Gladius:UNIT_HEALTH(event, unit)
 	if (arenaUnits[unit]) then
 		local button = self.buttons[unit]
 		if(not button) then return end
 
+		-- show the button
+		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
+			if (not button:IsShown()) then button:Show() end
+			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
+		end
+
 		-- update absorb bar
 		if( db.absorbBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then --hardcode for now to avoid checking pet
 			Gladius:UpdateAbsorb(event, unit, button)
 		end
 
-		-- show the button
-		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
-			if (not button:IsShown()) then button:Show() end
-			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
+		-- update cutaway
+		if ( db.cutawayBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then
+			local _currentHealth, _maxHealth = UnitHealth(unit), UnitHealthMax(unit)
+			Gladius:UpdateCutaway(button, _currentHealth, _maxHealth)
 		end
 
 		if(not UnitIsDeadOrGhost(unit)) then
@@ -906,7 +952,7 @@ function Gladius:StartCooldownGlow(unit, spellId, auraType)
 	if (db.cooldownList[spellId] == false and auraType == 'DEBUFF') then return end
 
 	for i=1,(button.lastCooldownSpell or 14) do -- button.lastCooldownSpell return a number that match max number of detected talent cooldown
-		if (button.spellCooldownFrame["icon" .. i] == nil) then return end
+		if (button.spellCooldownFrame == nil) then return end
 		if (button.spellCooldownFrame["icon" .. i].spellId == spellId) then
 		   	local frame = button.spellCooldownFrame["icon" .. i]
 		   	frame.glowActive = true
@@ -929,6 +975,7 @@ function Gladius:StopCooldownGlow(unit, spellId, auraType)
 	if (db.cooldownList[spellId] == false and auraType == 'BUFF') then return end
 
 	for i=1,(button.lastCooldownSpell or 14) do
+		if (button.spellCooldownFrame == nil) then return end
 		if (button.spellCooldownFrame["icon" .. i].spellId == spellId) then
 		   local frame = button.spellCooldownFrame["icon" .. i]
 		   frame.glowActive = false
@@ -1716,11 +1763,11 @@ function Gladius:UpdateAbsorb(event, unit, button)
 	--
 
 	if ( myCurrentHealAbsorb > 0 and health < maxHealth ) then
-		CompactUnitFrameUtil_UpdateFillBar(button.absorb.totalAbsorbOverlay, button, button.health, health, myCurrentHealAbsorb)
 		CompactUnitFrameUtil_UpdateFillBar(button.absorb.totalAbsorb,        button, button.health, health, myCurrentHealAbsorb)
+		CompactUnitFrameUtil_UpdateFillBar(button.absorb.totalAbsorbOverlay, button, button.health, health, myCurrentHealAbsorb)
 	else
-		button.absorb.totalAbsorbOverlay:Hide()
 		button.absorb.totalAbsorb:Hide()
+		button.absorb.totalAbsorbOverlay:Hide()
 	end
 
 	local overAbsorb = false;

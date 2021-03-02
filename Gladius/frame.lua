@@ -44,7 +44,7 @@ local function CastUpdate(self, elapsed)
 	end
 end
 
-local function StyleActionButton(f)
+local function StyleActionButton(f, hideBorder, iconPadding)
 	local name = f:GetName()
 	local button  = _G[name]
 	local icon  = _G[name.."Icon"]
@@ -56,9 +56,21 @@ local function StyleActionButton(f)
 
 	button:SetNormalTexture("Interface\\AddOns\\Gladius\\images\\clean")
 
+	if hideBorder then
+		normalTex:SetAlpha(0)
+	else
+		normalTex:SetAlpha(1)
+	end
+
 	icon:SetTexCoord(0.1,0.9,0.1,0.9)
-	icon:SetPoint("TOPLEFT", button, "TOPLEFT", 2, -2)
-	icon:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 2)
+
+	if iconPadding then
+		icon:SetPoint("TOPLEFT", button, "TOPLEFT", iconPadding, -iconPadding)
+		icon:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -iconPadding, iconPadding)
+	else
+		icon:SetPoint("TOPLEFT", button, "TOPLEFT", 2, -2)
+		icon:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 2)
+	end
 
 	--normalTex:SetVertexColor(1,1,1,1)
 end
@@ -224,6 +236,22 @@ function Gladius:CreateButton(i)
     healthBar.highlight:SetAllPoints(healthBar)
     healthBar.highlight:Hide()
 
+	-- Health bar loss animation
+	local cutaway = CreateFrame("Frame", "GladiusCutawayBar"..i, button)
+	--cutaway:SetFrameLevel(healthBar:GetFrameLevel() + 1)
+	cutaway.bar = cutaway:CreateTexture(nil, "ARTWORK") -- b.BS
+	cutaway.bar:SetAlpha(1) -- set from alpha
+	cutaway.bar:Hide()
+	--
+	cutaway.anim    = cutaway.bar:CreateAnimationGroup()
+	cutaway.anim.s1 = cutaway.anim:CreateAnimation("Scale")
+	cutaway.anim.s1:SetScale(0,1)
+	cutaway.anim.s1:SetOrigin("LEFT", 0, 0)
+	cutaway.anim.s1:SetDuration(0.475)
+	cutaway.anim.s1:SetSmoothing("OUT")
+	--
+	cutaway.previousValue = 1 -- init at max
+
 	-- AbsorbBar
 	local absorbBar       = CreateFrame("Frame", "GladiusAbsorbBar"..i, button)
 	local overAbsorbFrame = CreateFrame("Frame", "GladiusOverAbsorbGlow"..i, healthBar) -- hack to get the glow spark over everything
@@ -233,13 +261,10 @@ function Gladius:CreateButton(i)
     absorbBar.overAbsorbGlow:SetBlendMode("ADD");
     absorbBar.overAbsorbGlow:Hide()
 	-- Total absorb
-	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER", nil, 0)
-	absorbBar.totalAbsorb:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Fill]])
+	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BACKGROUND")
     absorbBar.totalAbsorb:Hide()
 	-- Total absorb overlay
-	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER", nil, 1)
-	absorbBar.totalAbsorbOverlay:SetHorizTile(true)
-	absorbBar.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], "MIRROR")
+	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER")
 	absorbBar.totalAbsorbOverlay:Hide()
 
 	--Mana bar
@@ -320,9 +345,6 @@ function Gladius:CreateButton(i)
 	for x=1, 14 do
 		local icon = CreateFrame("CheckButton", "Gladius"..i.."SpellCooldownFrame"..x, spellCooldownFrame, "ActionButtonTemplate")
 		icon:EnableMouse(false)
-		if( db.hideCooldownBorder ) then
-			icon:GetNormalTexture():SetTexCoord(1,1,1,1) -- force removal of ugly black square
-		end
 		icon.texture = _G[icon:GetName().."Icon"]
 		icon.cooldown = _G[icon:GetName().."Cooldown"]
 		icon.cooldown:SetReverse(false)
@@ -452,6 +474,7 @@ function Gladius:CreateButton(i)
 
     button.mana = manaBar
     button.health = healthBar
+    button.cutaway = cutaway
     button.absorb = absorbBar
     button.castBar = castBar
     button.castBar.timeText = castBarTextTime
@@ -783,19 +806,27 @@ function Gladius:UpdateFrame()
 		DisableTexTiling(button.health:GetStatusBarTexture())
 		DisableTexTiling(button.health.bg)
 
+		-- Health bar loss animation (textures, size, position)
+		button.cutaway.bar:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
+		button.cutaway.bar:SetVertexColor(255/255, 0/255, 0/255, 1) -- texture color
+		button.cutaway.bar:SetSize(0, button.health:GetHeight())
+
 		-- absorb bar location and size
 		-- OverAbsorb
 		button.absorb.overAbsorbGlow:ClearAllPoints()
-		button.absorb.overAbsorbGlow:SetPoint("RIGHT", button.health, "RIGHT", 7, 0)
-		button.absorb.overAbsorbGlow:SetSize(12, button.health:GetHeight() + 4)
+		button.absorb.overAbsorbGlow:SetPoint("RIGHT", button.health, "RIGHT", 6, 0)
+		button.absorb.overAbsorbGlow:SetSize(12, button.health:GetHeight())
 		-- Total absorb
 		button.absorb.totalAbsorb:ClearAllPoints()
+		button.absorb.totalAbsorb:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
 		button.absorb.totalAbsorb:SetPoint("RIGHT", button.health, "RIGHT")
-		button.absorb.totalAbsorb:SetSize(15, button.health:GetHeight())
+		button.absorb.totalAbsorb:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
 		-- Total absorb overlay
 		button.absorb.totalAbsorbOverlay:ClearAllPoints()
+		button.absorb.totalAbsorbOverlay:SetHorizTile(true)
+		button.absorb.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], "MIRROR")
 		button.absorb.totalAbsorbOverlay:SetPoint("RIGHT", button.health, "RIGHT")
-		button.absorb.totalAbsorbOverlay:SetSize(15, button.health:GetHeight()) -- -15
+		button.absorb.totalAbsorbOverlay:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
 
 		--mana bar location, size and texture
 		button.mana:ClearAllPoints()
@@ -1205,7 +1236,13 @@ function Gladius:UpdateFrame()
 			button.spellCooldownFrame:SetHeight(db.barHeight+extraBarHeight)
 			button.spellCooldownFrame:SetWidth(db.barHeight+extraBarHeight)
 
-         	-- Update each cooldown icon
+			-- Update each cooldown icon
+			local iconPadding = 0
+			if db.cooldownIconPadding then
+				iconPadding = db.cooldownIconPadding
+			else
+				iconPadding = 2 -- default
+			end
 			for i=1,14 do
 				local icon = button.spellCooldownFrame["icon"..i]
 				icon:SetHeight(button.spellCooldownFrame:GetHeight()/2)
@@ -1216,17 +1253,17 @@ function Gladius:UpdateFrame()
 					if(i==1) then
 						icon:SetPoint("TOPLEFT",button.spellCooldownFrame)
 					elseif(i==2) then
-						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-1)
+						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-iconPadding)
 					elseif(i>=3) then
-						icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-2],"RIGHT",1,0)
+						icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-2],"RIGHT",iconPadding,0)
 					end
 				else
 					if(i==1) then
 						icon:SetPoint("TOPRIGHT",button.spellCooldownFrame)
 					elseif(i==2) then
-						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-1)
+						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-iconPadding)
 					elseif(i>=3) then
-						icon:SetPoint("RIGHT",button.spellCooldownFrame["icon"..i-2],"LEFT",-1,0)
+						icon:SetPoint("RIGHT",button.spellCooldownFrame["icon"..i-2],"LEFT",-iconPadding,0)
 					end
 				end
 
@@ -1239,7 +1276,11 @@ function Gladius:UpdateFrame()
 				icon.spellId = nil
 				icon:SetAlpha(1)
 				icon.texture:SetTexture("Interface\\Icons\\Spell_Holy_PainSupression")
-				StyleActionButton(icon)
+				if db.hideCooldownBorder then
+					StyleActionButton(icon, true, iconPadding)
+				else
+					StyleActionButton(icon, false, iconPadding)
+				end
 
 				if (not self.frame.testing) then
 					icon:Hide()
