@@ -282,7 +282,7 @@ function Gladius:UpdateCutaway(button, curH, maxH)
 		-- Check if old animation is already playing and stop it
 		if(button.cutaway.anim:IsPlaying()) then
 			button.cutaway.anim:Stop()
-			button.cutaway.anim:Hide()
+			button.cutaway.bar:Hide()
 		end
 		button.cutaway.previousValue  = curHealthNorm
 		return
@@ -296,14 +296,15 @@ function Gladius:UpdateCutaway(button, curH, maxH)
 			button.cutaway.bar:Hide()
 		end
 		--
+		local marge = 2
 		local low = curHealthNorm > button.cutaway.previousValue and button.cutaway.previousValue or curHealthNorm
 		local diff = math.abs(button.cutaway.previousValue - curHealthNorm)
 		button.cutaway.bar:ClearAllPoints()
-		button.cutaway.bar:SetPoint("TOPLEFT", button.health, low*button.health:GetWidth(), 0)
+		button.cutaway.bar:SetPoint("TOPLEFT", button.health, low*button.health:GetWidth() - marge, 0)
 		button.cutaway.bar:SetWidth(diff*button.health:GetWidth())
 		button.cutaway.bar:Show()
 		button.cutaway.anim:Play()
-		button.cutaway.anim:SetScript("OnFinished", function() cutaway.bar:Hide() end)
+		button.cutaway.anim:SetScript("OnFinished", function() button.cutaway.bar:Hide() end)
 	end
 	button.cutaway.previousValue  = curHealthNorm
 
@@ -315,15 +316,21 @@ function Gladius:UNIT_HEALTH(event, unit)
 		local button = self.buttons[unit]
 		if(not button) then return end
 
+		-- show the button
+		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
+			if (not button:IsShown()) then button:Show() end
+			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
+		end
+
 		-- update absorb bar
 		if( db.absorbBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then --hardcode for now to avoid checking pet
 			Gladius:UpdateAbsorb(event, unit, button)
 		end
 
-		-- show the button
-		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
-			if (not button:IsShown()) then button:Show() end
-			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
+		-- update cutaway
+		if ( db.cutawayBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then
+			local _currentHealth, _maxHealth = UnitHealth(unit), UnitHealthMax(unit)
+			Gladius:UpdateCutaway(button, _currentHealth, _maxHealth)
 		end
 
 		if(not UnitIsDeadOrGhost(unit)) then
@@ -354,10 +361,6 @@ function Gladius:UNIT_HEALTH(event, unit)
 
 			button.healthText:SetText(healthText)
 			button.health:SetValue(healthPercent)
-
-			if ( db.cutawayBar ) then
-				Gladius:UpdateCutaway(button, currentHealth, maxHealth)
-			end
 
 			-- display low health announcement
 			if ( db.lowHealthAnnounce and healthPercent <= db.lowHealthPercentage and not button.lowHealth and (not button.healthThrottle or GetTime() > button.healthThrottle) and button.name ) then

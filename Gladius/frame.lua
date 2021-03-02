@@ -225,9 +225,9 @@ function Gladius:CreateButton(i)
     healthBar.highlight:Hide()
 
 	-- Health bar loss animation
-	local cutaway = CreateFrame("Frame", "GladiusCutawayBar"..i, healthBar)
-	cutaway:SetFrameLevel(healthBar:GetFrameLevel() + 10)
-	cutaway.bar = cutaway:CreateTexture(nil, "OVERLAY") -- b.BS
+	local cutaway = CreateFrame("Frame", "GladiusCutawayBar"..i, button)
+	--cutaway:SetFrameLevel(healthBar:GetFrameLevel() + 1)
+	cutaway.bar = cutaway:CreateTexture(nil, "ARTWORK") -- b.BS
 	cutaway.bar:SetAlpha(1) -- set from alpha
 	cutaway.bar:Hide()
 	--
@@ -237,6 +237,8 @@ function Gladius:CreateButton(i)
 	cutaway.anim.s1:SetOrigin("LEFT", 0, 0)
 	cutaway.anim.s1:SetDuration(0.475)
 	cutaway.anim.s1:SetSmoothing("OUT")
+	--
+	cutaway.previousValue = 1 -- init at max
 
 	-- AbsorbBar
 	local absorbBar       = CreateFrame("Frame", "GladiusAbsorbBar"..i, button)
