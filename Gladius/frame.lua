@@ -249,12 +249,10 @@ function Gladius:CreateButton(i)
     absorbBar.overAbsorbGlow:SetBlendMode("ADD");
     absorbBar.overAbsorbGlow:Hide()
 	-- Total absorb
-	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER", nil, 0)
+	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BACKGROUND")
     absorbBar.totalAbsorb:Hide()
 	-- Total absorb overlay
-	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER", nil, 1)
-	absorbBar.totalAbsorbOverlay:SetHorizTile(true)
-	absorbBar.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], "MIRROR")
+	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER")
 	absorbBar.totalAbsorbOverlay:Hide()
 
 	--Mana bar
@@ -816,6 +814,8 @@ function Gladius:UpdateFrame()
 		button.absorb.totalAbsorb:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
 		-- Total absorb overlay
 		button.absorb.totalAbsorbOverlay:ClearAllPoints()
+		button.absorb.totalAbsorbOverlay:SetHorizTile(true)
+		button.absorb.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], "MIRROR")
 		button.absorb.totalAbsorbOverlay:SetPoint("RIGHT", button.health, "RIGHT")
 		button.absorb.totalAbsorbOverlay:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
 

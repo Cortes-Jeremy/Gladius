@@ -296,11 +296,11 @@ function Gladius:UpdateCutaway(button, curH, maxH)
 			button.cutaway.bar:Hide()
 		end
 		--
-		local marge = 2
+		local padding = 2
 		local low = curHealthNorm > button.cutaway.previousValue and button.cutaway.previousValue or curHealthNorm
 		local diff = math.abs(button.cutaway.previousValue - curHealthNorm)
 		button.cutaway.bar:ClearAllPoints()
-		button.cutaway.bar:SetPoint("TOPLEFT", button.health, low*button.health:GetWidth() - marge, 0)
+		button.cutaway.bar:SetPoint("TOPLEFT", button.health, low*button.health:GetWidth() - padding, 0)
 		button.cutaway.bar:SetWidth(diff*button.health:GetWidth())
 		button.cutaway.bar:Show()
 		button.cutaway.anim:Play()
@@ -1763,11 +1763,11 @@ function Gladius:UpdateAbsorb(event, unit, button)
 	--
 
 	if ( myCurrentHealAbsorb > 0 and health < maxHealth ) then
-		CompactUnitFrameUtil_UpdateFillBar(button.absorb.totalAbsorbOverlay, button, button.health, health, myCurrentHealAbsorb)
 		CompactUnitFrameUtil_UpdateFillBar(button.absorb.totalAbsorb,        button, button.health, health, myCurrentHealAbsorb)
+		CompactUnitFrameUtil_UpdateFillBar(button.absorb.totalAbsorbOverlay, button, button.health, health, myCurrentHealAbsorb)
 	else
-		button.absorb.totalAbsorbOverlay:Hide()
 		button.absorb.totalAbsorb:Hide()
+		button.absorb.totalAbsorbOverlay:Hide()
 	end
 
 	local overAbsorb = false;
