@@ -39,6 +39,7 @@ local defaults = {
 		drFontColor = {r = 0, g = 1, b = 0, a = 1},
 		healthColor = {r = 0.20, g = 0.90, b = 0.20, a = 1},
 		healthBarColor = {r = 0.95, g = 0.95, b = 0.95, a = 1},
+		healthBackgroundColor = {r = 0, g = 0, b = 0, a = 0.55},
 		castBarBgColor = {r = 1, g = 1, b = 1, a = 0.3},
 		healthBarClassColor = true,
 		healthFontSize = 11,
@@ -58,6 +59,10 @@ local defaults = {
 		drFont = "Friz Quadrata TT",
 		barTexture = "Minimalist",
 		barBottomMargin = 8,
+		highlightBrd = false,
+		highlightBrdInset = false,
+		highlightBrdSize = 2,
+		highlightBrdColor = {r = 1, g = 1, b = 1, a = 1},
 		highlight = true,
 		selectedBorder = true,
 		focusBorder = true,
@@ -121,7 +126,9 @@ local defaults = {
 		debuffs = {},
 		castBarSpark = true,
 		castBarOnCast = true,
-		hideSpellRank = true,
+		hideCastbarText = false,
+		hideCastbarTime = false,
+		hideSpellRank = false,
 		absorbBar = false,
 		cutawayBar = false,
 		cooldown = false,
@@ -552,6 +559,39 @@ function Gladius:SetupOptions()
 						get=getColorOption,
 						set=setColorOption,
 					},
+					highlightBrd = {
+						type="toggle",
+						name=L["Highlight target with a custom border"],
+						desc=L["Toggle if the selected target should be highlighted with a border"],
+						order=40,
+					},
+					highlightBrdInset = {
+						type="toggle",
+						name=L["Highlight border will be inside the healthbar"],
+						desc=L["Highlight border will be inside the healthbar"],
+						disabled = function() return not self.db.profile.highlightBrd end,
+						order=41,
+					},
+					highlightBrdSize = {
+						type="range",
+						name=L["Highlight border Size"],
+						desc=L["Highlight border Size"],
+						min=0.1,
+						max=10,
+						step=0.1,
+						disabled = function() return not self.db.profile.highlightBrd end,
+						order=42,
+					},
+					highlightBrdColor = {
+						type="color",
+						name=L["Highlight target border color"],
+						desc=L["Highlight target border color"],
+						get=getColorOption,
+						set=setColorOption,
+						hasAlpha=true,
+						disabled = function() return not self.db.profile.highlightBrd end,
+						order=43,
+					},
 					highlight = {
 						type="toggle",
 						name=L["Highlight target"],
@@ -796,11 +836,24 @@ function Gladius:SetupOptions()
 						desc=L["Show cast bars on casting"],
 						order=4,
 					},
+					hideCastbarText = {
+						type="toggle",
+						name=L["Hide castbar text"],
+						desc=L["Hide castbar text"],
+						order=5,
+					},
+					hideCastbarTime = {
+						type="toggle",
+						name=L["Hide castbar time"],
+						desc=L["Hide castbar time"],
+						order=6,
+					},
 					hideSpellRank = {
 						type="toggle",
 						name=L["Hide spell rank"],
 						desc=L["Hide spell rankD"],
-						order=5,
+						disabled = function() return self.db.profile.hideCastbarText end,
+						order=7,
 					},
 					showPets = {
 						type="toggle",
@@ -917,7 +970,7 @@ function Gladius:SetupOptions()
 						desc=L["Color settings"],
 						order=2,
 						args = {
-						healthBarColor = {
+							healthBarColor = {
 								type="color",
 								name=L["Health bar color"],
 								desc=L["Color of the health bar"],
@@ -933,6 +986,15 @@ function Gladius:SetupOptions()
 								desc=L["Color the health bar by class"],
 								order=0,
 							},
+							healthBackgroundColor = {
+								type="color",
+								name=L["Health bar background color"],
+								desc=L["Color of the background health bar"],
+								get=getColorOption,
+								set=setColorOption,
+								hasAlpha=true,
+								order=1,
+							},
 							barTexture = {
 								type="select",
 								name=L["Bar texture"],
@@ -945,7 +1007,7 @@ function Gladius:SetupOptions()
 										Gladius.db.profile.barTexture = v
 										self:UpdateFrame()
 									end,
-								order=1
+								order=2
 							},
 							selectedFrameColor = {
 								type="color",
@@ -955,7 +1017,7 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=1,
+								order=3,
 							},
 							focusBorderColor = {
 								type="color",
@@ -965,7 +1027,7 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=1,
+								order=4,
 							},
 							assistBorderColor = {
 								type="color",
@@ -975,7 +1037,7 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=1,
+								order=5,
 							},
 							healthColor = {
 								type="color",
@@ -985,7 +1047,7 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=3,
+								order=6,
 							},
 							manaColor = {
 								type="color",
@@ -995,13 +1057,13 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=4,
+								order=7,
 							},
 							manaDefault = {
 								type="toggle",
 								name=L["Game default"],
 								desc=L["Use game default mana color"],
-								order=5,
+								order=8,
 							},
 							energyColor = {
 								type="color",
@@ -1011,13 +1073,13 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=6,
+								order=9,
 							},
 							energyDefault = {
 								type="toggle",
 								name=L["Game default"],
 								desc=L["Use game default energy color"],
-								order=7,
+								order=10,
 							},
 							rageColor = {
 								type="color",
@@ -1027,13 +1089,13 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=8,
+								order=11,
 							},
 							rageDefault = {
 								type="toggle",
 								name=L["Game default"],
 								desc=L["Use game default rage color"],
-								order=9,
+								order=12,
 							},
 							rpColor = {
 								type="color",
@@ -1043,13 +1105,13 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=10,
+								order=13,
 							},
 							rpDefault = {
 								type="toggle",
 								name=L["Game default"],
 								desc=L["Use game default runic power color"],
-								order=11,
+								order=14,
 							},
 							castBarColor = {
 								type="color",
@@ -1059,7 +1121,7 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=2,
+								order=15,
 							},
 							castBarBgColor = {
 								type="color",
@@ -1069,7 +1131,7 @@ function Gladius:SetupOptions()
 								get=getColorOption,
 								set=setColorOption,
 								hasAlpha=true,
-								order=2,
+								order=16,
 							},
 						},
 					},

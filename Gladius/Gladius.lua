@@ -625,8 +625,8 @@ function Gladius:UNIT_SPELLCAST_START(event, unit)
 		castBar.maxValue = (endTime - startTime) / 1000
 		castBar:SetMinMaxValues(0, castBar.maxValue)
 		castBar:SetValue(castBar.value)
-		castBar.timeText:SetText(maxValue)
 		castBar.icon:SetTexture(icon)
+		castBar.timeText:SetText(maxValue)
 
 		if( rank ~= "" and not db.hideSpellRank ) then
 			castBar.spellText:SetFormattedText("%s (%s)", spell, rank)
@@ -780,6 +780,9 @@ function Gladius:PLAYER_TARGET_CHANGED(event)
 	local target = UnitGUID("target")
 	for _, button in pairs(self.buttons) do
 		if( button.GUID == target ) then
+			if (db.highlightBrd) then
+				button.health.highlightBrd:Show()
+			end
 			if (db.highlight) then
 				button.highlight:Show()
 			end
@@ -787,6 +790,7 @@ function Gladius:PLAYER_TARGET_CHANGED(event)
 				button.selected:Show()
 			end
 		else
+			button.health.highlightBrd:Hide()
 			button.highlight:Hide()
 			button.selected:Hide()
 		end

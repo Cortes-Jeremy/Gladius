@@ -236,6 +236,11 @@ function Gladius:CreateButton(i)
     healthBar.highlight:SetAllPoints(healthBar)
     healthBar.highlight:Hide()
 
+	-- HealthBar Border hightlight
+	healthBar.highlightBrd = CreateFrame("Frame", nil, healthbar)
+	healthBar.highlightBrd:SetFrameLevel( healthBar:GetFrameLevel() + 1)
+	healthBar.highlightBrd:Hide()
+
 	-- Health bar loss animation
 	local cutaway = CreateFrame("Frame", "GladiusCutawayBar"..i, button)
 	--cutaway:SetFrameLevel(healthBar:GetFrameLevel() + 1)
@@ -565,6 +570,10 @@ function Gladius:CreatePetButton(id, parent)
     healthBar.highlight:SetAllPoints(healthBar)
     healthBar.highlight:Hide()
 
+	healthBar.highlightBrd = CreateFrame("Frame", nil, healthbar)
+	healthBar.highlightBrd:SetFrameLevel( healthBar:GetFrameLevel() + 1)
+	healthBar.highlightBrd:Hide()
+
 	--Name text
 	local nameText = healthBar:CreateFontString(nil,"LOW")
 	nameText:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.healthFont), db.manaFontSize)
@@ -806,6 +815,22 @@ function Gladius:UpdateFrame()
 		DisableTexTiling(button.health:GetStatusBarTexture())
 		DisableTexTiling(button.health.bg)
 
+		--health bar highlight location and texture
+		button.health.highlightBrd:ClearAllPoints()
+		if(db.highlightBrdInset) then
+			button.health.highlightBrd:SetAllPoints(button.health)
+		else
+			button.health.highlightBrd:SetPoint("TOPLEFT", button.health, "TOPLEFT", -db.highlightBrdSize, db.highlightBrdSize)
+			button.health.highlightBrd:SetPoint("TOPRIGHT", button.health, "TOPRIGHT", db.highlightBrdSize, db.highlightBrdSize)
+			button.health.highlightBrd:SetPoint("BOTTOMLEFT", button.health, "BOTTOMLEFT", -db.highlightBrdSize, -db.highlightBrdSize)
+			button.health.highlightBrd:SetPoint("BOTTOMRIGHT", button.health, "BOTTOMRIGHT", db.highlightBrdSize, -db.highlightBrdSize)
+		end
+		button.health.highlightBrd:SetBackdrop({
+			edgeFile = [[Interface\Buttons\WHITE8x8]],
+			edgeSize = db.highlightBrdSize,
+		})
+		button.health.highlightBrd:SetBackdropBorderColor( db.highlightBrdColor.r, db.highlightBrdColor.g, db.highlightBrdColor.b, db.highlightBrdColor.a);
+
 		-- Health bar loss animation (textures, size, position)
 		button.cutaway.bar:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
 		button.cutaway.bar:SetVertexColor(255/255, 0/255, 0/255, 1) -- texture color
@@ -945,6 +970,16 @@ function Gladius:UpdateFrame()
 		button.classText:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.manaFont), db.manaFontSize)
 		button.castBar.spellText:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.castBarFont), db.castBarFontSize, db.castBarTextOutline)
 		button.castBar.timeText:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.castBarFont), db.castBarFontSize, db.castBarTextOutline)
+		if ( db.hideCastbarTime ) then
+			button.castBar.timeText:Hide()
+		else
+			button.castBar.timeText:Show()
+		end
+		if ( db.hideCastbarText ) then
+			button.castBar.spellText:Hide()
+		else
+			button.castBar.spellText:Show()
+		end
 
 		--healthbar color
 		if(button.class and db.healthBarClassColor) then
@@ -952,6 +987,8 @@ function Gladius:UpdateFrame()
 		else
 			button.health:SetStatusBarColor(db.healthBarColor.r, db.healthBarColor.g, db.healthBarColor.b, 1.0)
 		end
+		-- healthbar background color
+		button.health.bg:SetVertexColor(db.healthBackgroundColor.r, db.healthBackgroundColor.g, db.healthBackgroundColor.b, db.healthBackgroundColor.a)
 
 		--power bar colors
 		if (button.powerType == 0 and not db.manaDefault) then
@@ -965,6 +1002,9 @@ function Gladius:UpdateFrame()
 		else
 			button.mana:SetStatusBarColor(PowerBarColor[button.powerType].r, PowerBarColor[button.powerType].g, PowerBarColor[button.powerType].b)
 		end
+		-- power background color
+		button.mana.bg:SetVertexColor(db.healthBackgroundColor.r, db.healthBackgroundColor.g, db.healthBackgroundColor.b, db.healthBackgroundColor.a)
+
 
 		--class icon size
 		local targetIcon = not db.targetIcon and 0 or targetIconSize+1
