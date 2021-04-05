@@ -779,9 +779,9 @@ end
 function Gladius:PLAYER_TARGET_CHANGED(event)
 	local target = UnitGUID("target")
 	for _, button in pairs(self.buttons) do
-		if( button.GUID == target ) then
+		if( button.GUID == target and target ~= nil) then
 			if (db.highlightBrd) then
-				button.health.highlightBrd:Show()
+				button.highlightBrd:Show()
 			end
 			if (db.highlight) then
 				button.highlight:Show()

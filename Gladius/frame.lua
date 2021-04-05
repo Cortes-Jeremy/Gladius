@@ -502,6 +502,7 @@ function Gladius:CreateButton(i)
     button.spellCooldownFrame = spellCooldownFrame
     button.drCooldownFrame = drCooldownFrame
     button.highlight = healthBar.highlight
+    button.highlightBrd = healthBar.highlightBrd
     button.selected = button.selected
     button.focusBorder = focusBorder
     button.assistBorder = assistBorder
@@ -570,6 +571,7 @@ function Gladius:CreatePetButton(id, parent)
     healthBar.highlight:SetAllPoints(healthBar)
     healthBar.highlight:Hide()
 
+	-- HealthBar Border hightlight
 	healthBar.highlightBrd = CreateFrame("Frame", nil, healthbar)
 	healthBar.highlightBrd:SetFrameLevel( healthBar:GetFrameLevel() + 1)
 	healthBar.highlightBrd:Hide()
@@ -605,6 +607,7 @@ function Gladius:CreatePetButton(id, parent)
 	button.focusBorder = focusBorder
 	button.assistBorder = assistBorder
 	button.highlight = healthBar.highlight
+	button.highlightBrd = healthBar.highlightBrd
 	button.health = healthBar
 	button.nameText = nameText
 	button.healthText = healthText
@@ -815,26 +818,27 @@ function Gladius:UpdateFrame()
 		DisableTexTiling(button.health:GetStatusBarTexture())
 		DisableTexTiling(button.health.bg)
 
-		--health bar highlight location and texture
-		button.health.highlightBrd:ClearAllPoints()
-		if(db.highlightBrdInset) then
-			button.health.highlightBrd:SetAllPoints(button.health)
-		else
-			button.health.highlightBrd:SetPoint("TOPLEFT", button.health, "TOPLEFT", -db.highlightBrdSize, db.highlightBrdSize)
-			button.health.highlightBrd:SetPoint("TOPRIGHT", button.health, "TOPRIGHT", db.highlightBrdSize, db.highlightBrdSize)
-			button.health.highlightBrd:SetPoint("BOTTOMLEFT", button.health, "BOTTOMLEFT", -db.highlightBrdSize, -db.highlightBrdSize)
-			button.health.highlightBrd:SetPoint("BOTTOMRIGHT", button.health, "BOTTOMRIGHT", db.highlightBrdSize, -db.highlightBrdSize)
-		end
-		button.health.highlightBrd:SetBackdrop({
-			edgeFile = [[Interface\Buttons\WHITE8x8]],
-			edgeSize = db.highlightBrdSize,
-		})
-		button.health.highlightBrd:SetBackdropBorderColor( db.highlightBrdColor.r, db.highlightBrdColor.g, db.highlightBrdColor.b, db.highlightBrdColor.a);
-
 		-- Health bar loss animation (textures, size, position)
 		button.cutaway.bar:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
 		button.cutaway.bar:SetVertexColor(255/255, 0/255, 0/255, 1) -- texture color
 		button.cutaway.bar:SetSize(0, button.health:GetHeight())
+
+		-- Health highlight
+		button.highlightBrd:ClearAllPoints()
+		if(db.highlightBrdInset) then
+			button.highlightBrd:SetAllPoints(button.health)
+		else
+			button.highlightBrd:SetPoint("TOPLEFT", button.health, "TOPLEFT", -db.highlightBrdSize, db.highlightBrdSize)
+			button.highlightBrd:SetPoint("TOPRIGHT", button.health, "TOPRIGHT", db.highlightBrdSize, db.highlightBrdSize)
+			button.highlightBrd:SetPoint("BOTTOMLEFT", button.health, "BOTTOMLEFT", -db.highlightBrdSize, -db.highlightBrdSize)
+			button.highlightBrd:SetPoint("BOTTOMRIGHT", button.health, "BOTTOMRIGHT", db.highlightBrdSize, -db.highlightBrdSize)
+		end
+		button.highlightBrd:SetBackdrop({
+			edgeFile = [[Interface\Buttons\WHITE8x8]],
+			edgeSize = db.highlightBrdSize,
+		})
+		button.highlightBrd:SetBackdropBorderColor( db.highlightBrdColor.r, db.highlightBrdColor.g, db.highlightBrdColor.b, db.highlightBrdColor.a);
+		button.highlightBrd:Hide()
 
 		-- absorb bar location and size
 		-- OverAbsorb
