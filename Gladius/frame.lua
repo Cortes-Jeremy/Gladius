@@ -243,8 +243,7 @@ function Gladius:CreateButton(i)
 
 	-- Health bar loss animation
 	local cutaway = CreateFrame("Frame", "GladiusCutawayBar"..i, button)
-	--cutaway:SetFrameLevel(healthBar:GetFrameLevel() + 1)
-	cutaway.bar = cutaway:CreateTexture(nil, "ARTWORK") -- b.BS
+	cutaway.bar = cutaway:CreateTexture(nil, "ARTWORK")
 	cutaway.bar:SetAlpha(1) -- set from alpha
 	cutaway.bar:Hide()
 	--
@@ -266,7 +265,7 @@ function Gladius:CreateButton(i)
     absorbBar.overAbsorbGlow:SetBlendMode("ADD");
     absorbBar.overAbsorbGlow:Hide()
 	-- Total absorb
-	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BACKGROUND")
+	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER")
     absorbBar.totalAbsorb:Hide()
 	-- Total absorb overlay
 	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER")
@@ -843,19 +842,21 @@ function Gladius:UpdateFrame()
 		-- absorb bar location and size
 		-- OverAbsorb
 		button.absorb.overAbsorbGlow:ClearAllPoints()
-		button.absorb.overAbsorbGlow:SetPoint("RIGHT", button.health, "RIGHT", 6, 0)
-		button.absorb.overAbsorbGlow:SetSize(12, button.health:GetHeight())
+		button.absorb.overAbsorbGlow:SetPoint("BOTTOMLEFT", button.health, "BOTTOMRIGHT", -7, 0)
+		button.absorb.overAbsorbGlow:SetPoint("TOPLEFT", button.health, "TOPRIGHT", -7, 0)
+		button.absorb.overAbsorbGlow:SetSize(16, button.health:GetHeight())
 		-- Total absorb
 		button.absorb.totalAbsorb:ClearAllPoints()
 		button.absorb.totalAbsorb:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
-		button.absorb.totalAbsorb:SetPoint("RIGHT", button.health, "RIGHT")
-		button.absorb.totalAbsorb:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
+		button.absorb.totalAbsorb:SetPoint("LEFT", button.health:GetStatusBarTexture(), "RIGHT")
+		button.absorb.totalAbsorb:SetSize((i+1)^2, button.health:GetHeight())
 		-- Total absorb overlay
 		button.absorb.totalAbsorbOverlay:ClearAllPoints()
 		button.absorb.totalAbsorbOverlay:SetHorizTile(true)
-		button.absorb.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], "MIRROR")
-		button.absorb.totalAbsorbOverlay:SetPoint("RIGHT", button.health, "RIGHT")
-		button.absorb.totalAbsorbOverlay:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
+		button.absorb.totalAbsorbOverlay:SetVertTile(true)
+		button.absorb.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], true, true)
+		button.absorb.totalAbsorbOverlay:SetPoint("LEFT", button.health:GetStatusBarTexture(), "RIGHT")
+		button.absorb.totalAbsorbOverlay:SetSize((i+1)^2, button.health:GetHeight())
 
 		--mana bar location, size and texture
 		button.mana:ClearAllPoints()
@@ -1495,17 +1496,6 @@ function Gladius:UpdateFrame()
 			end
 
 			button.healthText:SetText(healthText)
-
-			--set fake absorb value
-			if( db.absorbBar ) then
-				button.absorb.overAbsorbGlow:Show()
-				button.absorb.totalAbsorb:Show()
-				button.absorb.totalAbsorbOverlay:Show()
-			else
-				button.absorb.overAbsorbGlow:Hide()
-				button.absorb.totalAbsorb:Hide()
-				button.absorb.totalAbsorbOverlay:Hide()
-			end
 
 			--set the mana text
 			local currentMana, maxMana = button.manaActual, button.manaMax

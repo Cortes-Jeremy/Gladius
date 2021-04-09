@@ -449,15 +449,15 @@ function Gladius:UNIT_AURA(event, unit)
 		local button = self.buttons[unit]
 		if(not button) then return end
 
-		-- update absorb bar
-		if( db.absorbBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then --hardcode for now to avoid checking pet
-			Gladius:UpdateAbsorb(event, unit, button)
-		end
-
 		-- show the button
 		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
 			if (not button:IsShown()) then button:Show() end
 			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
+		end
+
+		-- update absorb bar
+		if( db.absorbBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then --hardcode for now to avoid checking pet
+			Gladius:UpdateAbsorb(event, unit, button)
 		end
 
 		local aura = button.auraFrame
@@ -730,27 +730,27 @@ function Gladius:DetectSpec(unit, spec)
 			for k,v in pairs(self.cooldownSpells[class]) do
 				if (db.cooldownList[k] ~= false and db.cooldownList[class] ~= false) then
 					if (type(v) == "table" and ((v.spec ~= nil and v.spec == spec) or (v.notSpec ~= nil and v.notSpec ~= spec))) then
-					local button = self.buttons[unit]
+						local button = self.buttons[unit]
 
-					local sharedCD = false
-					if (type(v) == "table" and v.sharedCD ~= nil and v.sharedCD.cd == nil) then
-						for spellId, _ in pairs(v.sharedCD) do
-							for i=1, button.lastCooldownSpell do
-								local icon = button.spellCooldownFrame["icon" .. i]
-								if (icon.spellId == spellId) then
-								sharedCD = true
+						local sharedCD = false
+						if (type(v) == "table" and v.sharedCD ~= nil and v.sharedCD.cd == nil) then
+							for spellId, _ in pairs(v.sharedCD) do
+								for i=1, button.lastCooldownSpell do
+									local icon = button.spellCooldownFrame["icon" .. i]
+									if (icon.spellId == spellId) then
+									sharedCD = true
+									end
 								end
 							end
 						end
-					end
-					if sharedCD then return end
+						if sharedCD then return end
 
-					local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
-					icon:Show()
-					icon.texture:SetTexture(self.spellTextures[k])
-					icon.spellId = k -- Missing spellID to updated talent frame
+						local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
+						icon:Show()
+						icon.texture:SetTexture(self.spellTextures[k])
+						icon.spellId = k -- Missing spellID to updated talent frame
 
-					button.lastCooldownSpell = button.lastCooldownSpell + 1
+						button.lastCooldownSpell = button.lastCooldownSpell + 1
 					end
 				end
 			end
@@ -976,7 +976,7 @@ end
 function Gladius:StopCooldownGlow(unit, spellId, auraType)
 	local button = self.buttons[unit]
 	if not button then return end
-	if (db.cooldownList[spellId] == false and auraType == 'BUFF') then return end
+	if (db.cooldownList[spellId] == false and auraType == 'DEBUFF') then return end
 
 	for i=1,(button.lastCooldownSpell or 14) do
 		if (button.spellCooldownFrame == nil) then return end
@@ -1703,6 +1703,21 @@ function Gladius:Test()
 			button.manaText:Hide()
 		end
 
+		--set fake absorb value
+		if( db.absorbBar ) then
+			button.absorb.overAbsorbGlow:Show()
+			button.absorb.totalAbsorb:Show()
+			button.absorb.totalAbsorbOverlay:Show()
+			button.absorb.totalAbsorb:SetWidth(100-(i^2))
+			button.absorb.totalAbsorbOverlay:SetWidth(100-(i^2))
+		else
+			button.absorb.overAbsorbGlow:Hide()
+			button.absorb.totalAbsorb:Hide()
+			button.absorb.totalAbsorbOverlay:Hide()
+			button.absorb.totalAbsorb:SetWidth(0)
+			button.absorb.totalAbsorbOverlay:SetWidth(0)
+		end
+
 		--Check if it's a pet class and in that case update the frame to fit
 		button.isPetClass = petClasses[class] and true or false
 
@@ -1743,13 +1758,9 @@ function Gladius:UpdateAbsorb(event, unit, button)
 	local _guid     = UnitGUID(unit)
 	local myCurrentHealAbsorb = LAM.Unit_Total(_guid)
 
-	--LAM.SetLowValueTolerance(0)
-	--print("unit: "..unit.." | "..myCurrentHealAbsorb)
-
 	--
 	function CompactUnitFrameUtil_UpdateFillBar(self, frame, previousTexture, health, myCurrentHealAbsorb)
 		local totalWidth, totalHeight = frame:GetSize();
-		local prevWidth, prevHeight = previousTexture:GetSize();
 		local amout = (health + myCurrentHealAbsorb) / maxHealth
 		local barOffsetX = (health / maxHealth) * totalWidth
 		local barOffsetXPercent = previousTexture:GetWidth() * amout
@@ -1759,9 +1770,7 @@ function Gladius:UpdateAbsorb(event, unit, button)
 			barSize = totalWidth - barOffsetX
 		end
 
-		self:ClearAllPoints()
-		self:SetPoint("LEFT", previousTexture:GetStatusBarTexture(), "RIGHT")
-		self:SetSize(barSize, previousTexture:GetHeight())
+		self:SetWidth(barSize)
 		self:Show()
 	end
 	--
