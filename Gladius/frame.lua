@@ -816,6 +816,14 @@ function Gladius:UpdateFrame()
 		button.health.bg:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture))
 		DisableTexTiling(button.health:GetStatusBarTexture())
 		DisableTexTiling(button.health.bg)
+		if db.smoothBar and db.smoothingAmount and (db.smoothingAmount ~= 0.33) then
+			Gladius:SetSmoothingAmount(db.smoothingAmount)
+		end
+		if db.smoothBar then
+			Gladius:SetSmoothing(button.health, true)
+		else
+			Gladius:SetSmoothing(button.health)
+		end
 
 		-- Health bar loss animation (textures, size, position)
 		button.cutaway.bar:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar

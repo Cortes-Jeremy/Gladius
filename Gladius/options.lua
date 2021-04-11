@@ -130,6 +130,8 @@ local defaults = {
 		hideCastbarTime = false,
 		hideSpellRank = false,
 		absorbBar = false,
+		smoothBar = true,
+		smoothingAmount = 0.33,
 		cutawayBar = false,
 		cooldown = false,
 		cooldownIconPadding = 2,
@@ -867,11 +869,39 @@ function Gladius:SetupOptions()
 						desc=L["Show absorb bars"],
 						order=16,
 					},
+					smoothGroup = {
+						type="group",
+						name="smoothbar",
+						order=17,
+						args={
+							smoothBar = {
+								type="toggle",
+								name=L["Use smooth bars"],
+								desc=L["Use smooth bars"],
+								disabled = function() return self.db.profile.cutawayBar end,
+								order=1,
+							},
+							smoothingAmount = {
+								order = 2,
+								type = "range",
+								disabled = function() return not self.db.profile.smoothBar end,
+								isPercent = true,
+								name = L["Smoothing Amount"],
+								desc = L["Controls the speed at which smoothed bars will be updated."],
+								min = 0.1, max = 0.8, softMax = 0.75, softMin = 0.25, step = 0.01,
+								set = function(info, value)
+									Gladius.db.profile.smoothingAmount = value
+									Gladius:SetSmoothingAmount(value)
+								end
+							}
+						}
+					},
 					cutawayBar = {
 						type="toggle",
 						name=L["Show cutaway bars"],
 						desc=L["Show cutaway bars"],
-						order=17,
+						disabled = function() return self.db.profile.smoothBar end,
+						order=18,
 					},
 					powerBar = {
 						type="toggle",

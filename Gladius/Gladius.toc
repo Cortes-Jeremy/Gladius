@@ -33,3 +33,4 @@ cooldownlist.lua
 drlist.lua
 options.lua
 frame.lua
+Smoothie.lua
