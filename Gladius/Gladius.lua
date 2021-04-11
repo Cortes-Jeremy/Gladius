@@ -323,12 +323,12 @@ function Gladius:UNIT_HEALTH(event, unit)
 		end
 
 		-- update absorb bar
-		if( db.absorbBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then --hardcode for now to avoid checking pet
+		if( db.absorbBar and (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) ) then
 			Gladius:UpdateAbsorb(event, unit, button)
 		end
 
 		-- update cutaway
-		if ( db.cutawayBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then
+		if ( db.cutawayBar and (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) ) then
 			local _currentHealth, _maxHealth = UnitHealth(unit), UnitHealthMax(unit)
 			Gladius:UpdateCutaway(button, _currentHealth, _maxHealth)
 		end
@@ -456,7 +456,7 @@ function Gladius:UNIT_AURA(event, unit)
 		end
 
 		-- update absorb bar
-		if( db.absorbBar and unit == 'arena1' or unit == 'arena2' or unit == 'arena3') then --hardcode for now to avoid checking pet
+		if( db.absorbBar and (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) ) then
 			Gladius:UpdateAbsorb(event, unit, button)
 		end
 

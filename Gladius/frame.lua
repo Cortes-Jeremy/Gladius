@@ -552,28 +552,58 @@ function Gladius:CreatePetButton(id, parent)
 	focusBorder:SetPoint("CENTER", healthBar,"CENTER")
 
 	-- assist frame (solid frame around the raid main assist target)
-   local assistBorder =  CreateFrame("Frame", nil, button)
-   assistBorder:SetBackdrop({edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1,})
-   assistBorder:SetBackdropBorderColor(db.assistBorderColor.r,db.assistBorderColor.g,db.assistBorderColor.b,db.assistBorderColor.a)
-   assistBorder:SetFrameStrata("MEDIUM")
-   assistBorder:SetHeight(db.petBarHeight + 4)
-   assistBorder:SetWidth(db.petBarWidth + 4)
-   assistBorder:ClearAllPoints()
-   assistBorder:SetPoint("CENTER", healthBar,"CENTER")
+	local assistBorder =  CreateFrame("Frame", nil, button)
+	assistBorder:SetBackdrop({edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1,})
+	assistBorder:SetBackdropBorderColor(db.assistBorderColor.r,db.assistBorderColor.g,db.assistBorderColor.b,db.assistBorderColor.a)
+	assistBorder:SetFrameStrata("MEDIUM")
+	assistBorder:SetHeight(db.petBarHeight + 4)
+	assistBorder:SetWidth(db.petBarWidth + 4)
+	assistBorder:ClearAllPoints()
+	assistBorder:SetPoint("CENTER", healthBar,"CENTER")
 
 	--Highlight for the health bar
 	healthBar.highlight = healthBar:CreateTexture(nil, "OVERLAY")
-    healthBar.highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
-    healthBar.highlight:SetBlendMode("ADD")
-    healthBar.highlight:SetAlpha(0.5)
-    healthBar.highlight:ClearAllPoints()
-    healthBar.highlight:SetAllPoints(healthBar)
-    healthBar.highlight:Hide()
+	healthBar.highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+	healthBar.highlight:SetBlendMode("ADD")
+	healthBar.highlight:SetAlpha(0.5)
+	healthBar.highlight:ClearAllPoints()
+	healthBar.highlight:SetAllPoints(healthBar)
+	healthBar.highlight:Hide()
 
 	-- HealthBar Border hightlight
 	healthBar.highlightBrd = CreateFrame("Frame", nil, healthbar)
 	healthBar.highlightBrd:SetFrameLevel( healthBar:GetFrameLevel() + 1)
 	healthBar.highlightBrd:Hide()
+
+	-- Health bar loss animation
+	local cutaway = CreateFrame("Frame", "GladiusCutawayPetBar"..id, button)
+	cutaway.bar = cutaway:CreateTexture(nil, "ARTWORK")
+	cutaway.bar:SetAlpha(1) -- set from alpha
+	cutaway.bar:Hide()
+	--
+	cutaway.anim    = cutaway.bar:CreateAnimationGroup()
+	cutaway.anim.s1 = cutaway.anim:CreateAnimation("Scale")
+	cutaway.anim.s1:SetScale(0,1)
+	cutaway.anim.s1:SetOrigin("LEFT", 0, 0)
+	cutaway.anim.s1:SetDuration(0.475)
+	cutaway.anim.s1:SetSmoothing("OUT")
+	--
+	cutaway.previousValue = 1 -- init at max
+
+	-- AbsorbBar
+	local absorbBar       = CreateFrame("Frame", "GladiusAbsorbPetBar"..id, button)
+	local overAbsorbFrame = CreateFrame("Frame", "GladiusOverAbsorbGlowPet"..id, healthBar) -- hack to get the glow spark over everything
+	-- OverAbsorb
+	absorbBar.overAbsorbGlow = overAbsorbFrame:CreateTexture(nil, "OVERLAY")
+	absorbBar.overAbsorbGlow:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overshield]])
+	absorbBar.overAbsorbGlow:SetBlendMode("ADD");
+	absorbBar.overAbsorbGlow:Hide()
+	-- Total absorb
+	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER")
+	absorbBar.totalAbsorb:Hide()
+	-- Total absorb overlay
+	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER")
+	absorbBar.totalAbsorbOverlay:Hide()
 
 	--Name text
 	local nameText = healthBar:CreateFontString(nil,"LOW")
@@ -608,6 +638,7 @@ function Gladius:CreatePetButton(id, parent)
 	button.highlight = healthBar.highlight
 	button.highlightBrd = healthBar.highlightBrd
 	button.health = healthBar
+    button.cutaway = cutaway
 	button.nameText = nameText
 	button.healthText = healthText
 	button.secure = secure
@@ -643,6 +674,10 @@ function Gladius:UpdateFrame()
 	local offset = 0
 	local gridIcon = 0
 	local extraSelectedWidth = 0
+
+	if (db.smoothBar and db.smoothingAmount and (db.smoothingAmount ~= 0.33)) then
+		Gladius:SetSmoothingAmount(db.smoothingAmount)
+	end
 
 	if (db.castBar and db.castBarPos == "CENTER") then
 		margin = margin + db.castBarHeight
@@ -816,9 +851,6 @@ function Gladius:UpdateFrame()
 		button.health.bg:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture))
 		DisableTexTiling(button.health:GetStatusBarTexture())
 		DisableTexTiling(button.health.bg)
-		if db.smoothBar and db.smoothingAmount and (db.smoothingAmount ~= 0.33) then
-			Gladius:SetSmoothingAmount(db.smoothingAmount)
-		end
 		if db.smoothBar then
 			Gladius:SetSmoothing(button.health, true)
 		else
@@ -875,6 +907,11 @@ function Gladius:UpdateFrame()
 		button.mana.bg:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture))
 		DisableTexTiling(button.mana:GetStatusBarTexture())
 		DisableTexTiling(button.mana.bg)
+		if db.smoothBar then
+			Gladius:SetSmoothing(button.mana, true)
+		else
+			Gladius:SetSmoothing(button.mana)
+		end
 
 		if (not db.powerBar) then
 			button.mana:Hide()
