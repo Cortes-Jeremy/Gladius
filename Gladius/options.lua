@@ -9,6 +9,23 @@ sounds[L["Disabled"]] = "disabled"
 
 local spellCache
 
+local pointValues = {
+	TOPLEFT = L['Top left'],
+	TOP = L['Top'],
+	TOPRIGHT = L['Top right'],
+	LEFT = L['Left'],
+	CENTER = L['Center'],
+	RIGHT = L['Right'],
+	BOTTOMLEFT = L['Bottom left'],
+	BOTTOM = L['Bottom'],
+	BOTTOMRIGHT = L['Bottom right']
+}
+local justifyValues = {
+	LEFT = L['Left'],
+	CENTER = L['Center'],
+	RIGHT = L['Right']
+}
+
 local defaults = {
 	profile = {
 		x=0,
@@ -43,6 +60,10 @@ local defaults = {
 		castBarBgColor = {r = 1, g = 1, b = 1, a = 0.3},
 		healthBarClassColor = true,
 		healthFontSize = 11,
+		healthTextJustifyText = 'RIGHT',
+		healthTextAnchorPoint = 'RIGHT',
+		healthTextOffsetX = -5,
+		healthTextOffsetY = 0,
 		manaFontSize = 10,
 		castBarFontSize = 9,
 		castBarWidth = 150,
@@ -59,6 +80,7 @@ local defaults = {
 		drFont = "Friz Quadrata TT",
 		barTexture = "Minimalist",
 		barBottomMargin = 8,
+		frameBorder = false,
 		highlightBrd = false,
 		highlightBrdInset = false,
 		highlightBrdSize = 2,
@@ -76,6 +98,7 @@ local defaults = {
 		manaPercentage=false,
 		manaActual=true,
 		manaMax=true,
+		showName=true,
 		healthPercentage=true,
 		healthActual=false,
 		healthMax=false,
@@ -130,9 +153,12 @@ local defaults = {
 		hideCastbarTime = false,
 		hideSpellRank = false,
 		absorbBar = false,
+		smoothBar = true,
+		smoothingAmount = 0.33,
 		cutawayBar = false,
 		cooldown = false,
 		cooldownIconPadding = 2,
+		cooldownIconMargin = 2,
 		hideCooldownBorder = false,
 		cooldownAuraGlow = true,
 		cooldownDesaturate = true,
@@ -559,6 +585,12 @@ function Gladius:SetupOptions()
 						get=getColorOption,
 						set=setColorOption,
 					},
+					frameBorder = {
+						type="toggle",
+						name=L["Show Frame Border"],
+						desc=L["Show a thin black border around element to help contrast it with the game"],
+						order=36,
+					},
 					highlightBrd = {
 						type="toggle",
 						name=L["Highlight target with a custom border"],
@@ -867,11 +899,39 @@ function Gladius:SetupOptions()
 						desc=L["Show absorb bars"],
 						order=16,
 					},
+					smoothGroup = {
+						type="group",
+						name=L["Smooth bars"],
+						order=17,
+						args={
+							smoothBar = {
+								type="toggle",
+								name=L["Use smooth bars"],
+								desc=L["Use smooth bars"],
+								disabled = function() return self.db.profile.cutawayBar end,
+								order=1,
+							},
+							smoothingAmount = {
+								order = 2,
+								type = "range",
+								disabled = function() return not self.db.profile.smoothBar end,
+								isPercent = true,
+								name = L["Smoothing Amount"],
+								desc = L["Controls the speed at which smoothed bars will be updated."],
+								min = 0.1, max = 0.8, softMax = 0.75, softMin = 0.25, step = 0.01,
+								set = function(info, value)
+									Gladius.db.profile.smoothingAmount = value
+									Gladius:SetSmoothingAmount(value)
+								end
+							}
+						}
+					},
 					cutawayBar = {
 						type="toggle",
 						name=L["Show cutaway bars"],
 						desc=L["Show cutaway bars"],
-						order=17,
+						disabled = function() return self.db.profile.smoothBar end,
+						order=18,
 					},
 					powerBar = {
 						type="toggle",
@@ -1143,6 +1203,12 @@ function Gladius:SetupOptions()
 				desc=L["Text settings"],
 				order=3,
 				args = {
+					showName = {
+						type="toggle",
+						name=L["Show enemy name"],
+						desc=L["Show enemy name"],
+						order=1,
+					},
 					shortHpMana = {
 						type="toggle",
 						name=L["Shorten Health/Power text"],
@@ -1503,6 +1569,46 @@ function Gladius:SetupOptions()
 							},
 						},
 					},
+					positions = {
+						type="group",
+						name=L["Positions"],
+						desc=L["Positions settings"],
+						order=3,
+						args={
+							healthTextAnchorPoint = {
+								name = L['Health text Anchor Point'],
+								desc = L['Select which side of the health text is attached to the unit frame.'],
+								type = 'select',
+								values = pointValues,
+								order = 1,
+							},
+							healthTextJustifyText = {
+								name = L['Health text justify'],
+								desc = L['Select the alignement of the text'],
+								type = 'select',
+								values = justifyValues,
+								order = 2,
+							},
+							healthTextOffsetX = {
+								type = "range",
+								name = L["Health text offset X"],
+								desc = L["Health text offset X"],
+								min = -55,
+								max = 55,
+								step = 1,
+								order = 3,
+							},
+							healthTextOffsetY = {
+								type = "range",
+								name = L["Health text offset X"],
+								desc = L["Health text offset X"],
+								min = -55,
+								max = 55,
+								step = 1,
+								order = 4,
+							},
+						}
+					}
 				},
 			},
 			dr = {
@@ -1806,13 +1912,21 @@ function Gladius:SetupOptions()
 				name=L["Hide Cooldown border"],
 				order=5,
 			},
+			cooldownIconMargin = {
+				type="range",
+				name=L["Cooldown icon margin"],
+				min=0,
+				max=13,
+				step=0.1,
+				order=6,
+			},
 			cooldownIconPadding = {
 				type="range",
 				name=L["Cooldown icon padding"],
 				min=0,
-				max=5,
+				max=8,
 				step=0.1,
-				order=6,
+				order=7,
 			},
 			cooldownAuraGlow = {
 				type="toggle",

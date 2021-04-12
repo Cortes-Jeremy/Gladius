@@ -5,6 +5,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("Gladius", true)
 
 
+
 local function DisableTexTiling(texture)
 	texture:SetHorizTile(false)
 	texture:SetVertTile(false)
@@ -222,6 +223,15 @@ function Gladius:CreateButton(i)
 	healthBar:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT")
 	healthBar:SetMinMaxValues(0, 100)
 
+	local healthBarBorder = CreateFrame("Frame", nil, healthBar)
+	healthBarBorder:SetPoint("CENTER", healthBar)
+	healthBarBorder:SetBackdrop({
+		edgeFile = [[Interface\Addons\Gladius\media\border\white16x16]],
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1},
+	})
+	healthBar.border = healthBarBorder
+
 	healthBar.bg = healthBar:CreateTexture(nil, "BACKGROUND")
 	healthBar.bg:ClearAllPoints()
 	healthBar.bg:SetAllPoints(healthBar)
@@ -243,8 +253,7 @@ function Gladius:CreateButton(i)
 
 	-- Health bar loss animation
 	local cutaway = CreateFrame("Frame", "GladiusCutawayBar"..i, button)
-	--cutaway:SetFrameLevel(healthBar:GetFrameLevel() + 1)
-	cutaway.bar = cutaway:CreateTexture(nil, "ARTWORK") -- b.BS
+	cutaway.bar = cutaway:CreateTexture(nil, "ARTWORK")
 	cutaway.bar:SetAlpha(1) -- set from alpha
 	cutaway.bar:Hide()
 	--
@@ -266,7 +275,7 @@ function Gladius:CreateButton(i)
     absorbBar.overAbsorbGlow:SetBlendMode("ADD");
     absorbBar.overAbsorbGlow:Hide()
 	-- Total absorb
-	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BACKGROUND")
+	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER")
     absorbBar.totalAbsorb:Hide()
 	-- Total absorb overlay
 	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER")
@@ -283,6 +292,15 @@ function Gladius:CreateButton(i)
 	manaBar.bg:SetAllPoints(manaBar)
 	manaBar.bg:SetAlpha(0.3)
 
+	local manaBarBorder = CreateFrame("Frame", nil, manaBar)
+	manaBarBorder:SetPoint("CENTER", manaBar)
+	manaBarBorder:SetBackdrop({
+		edgeFile = [[Interface\Addons\Gladius\media\border\white16x16]],
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1},
+	})
+	manaBar.border = manaBarBorder
+
 	--Cast bar
 	local castBar = CreateFrame("StatusBar", "GladiusCastBar"..i, button)
 	castBar:SetMinMaxValues(0, 100)
@@ -294,10 +312,25 @@ function Gladius:CreateButton(i)
     castBar.bg:ClearAllPoints()
     castBar.bg:SetAllPoints(castBar)
 
+	castBar.border = CreateFrame("Frame", nil, castBar)
+	castBar.border:SetPoint("CENTER", castBar)
+	castBar.border:SetBackdrop({
+		edgeFile = [[Interface\Addons\Gladius\media\border\white16x16]],
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1},
+	})
+
     castBar.icon = castBar:CreateTexture(nil)
     castBar.icon:ClearAllPoints()
-    castBar.icon:SetPoint("RIGHT", castBar, "LEFT")
+    castBar.icon:SetPoint("RIGHT", castBar, "LEFT",1,0)
     castBar.icon:SetTexCoord(0.1,0.9,0.1,0.9)
+	castBar.icon.border = CreateFrame("Frame", nil, castBar)
+	castBar.icon.border:SetPoint("CENTER", castBar.icon)
+	castBar.icon.border:SetBackdrop({
+		edgeFile = [[Interface\Addons\Gladius\media\border\white16x16]],
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1},
+	})
 
 	castBar.spark = castBar:CreateTexture(nil, "OVERLAY")
 	castBar.spark:SetTexture([[Interface\AddOns\Gladius\media\CastBar\ui-castingbar-spark2]])
@@ -354,6 +387,13 @@ function Gladius:CreateButton(i)
 		icon.cooldown = _G[icon:GetName().."Cooldown"]
 		icon.cooldown:SetReverse(false)
 		icon.cooldown:SetDrawEdge(true)
+		icon.border = CreateFrame("Frame", nil, icon)
+		icon.border:SetPoint("CENTER", icon)
+		icon.border:SetBackdrop({
+			edgeFile = [[Interface\Addons\Gladius\media\border\white16x16]],
+			edgeSize = 1,
+			insets = {left = 1, right = 1, top = 1, bottom = 1},
+		})
 		spellCooldownFrame["icon"..x] = icon
 	end
 
@@ -553,28 +593,58 @@ function Gladius:CreatePetButton(id, parent)
 	focusBorder:SetPoint("CENTER", healthBar,"CENTER")
 
 	-- assist frame (solid frame around the raid main assist target)
-   local assistBorder =  CreateFrame("Frame", nil, button)
-   assistBorder:SetBackdrop({edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1,})
-   assistBorder:SetBackdropBorderColor(db.assistBorderColor.r,db.assistBorderColor.g,db.assistBorderColor.b,db.assistBorderColor.a)
-   assistBorder:SetFrameStrata("MEDIUM")
-   assistBorder:SetHeight(db.petBarHeight + 4)
-   assistBorder:SetWidth(db.petBarWidth + 4)
-   assistBorder:ClearAllPoints()
-   assistBorder:SetPoint("CENTER", healthBar,"CENTER")
+	local assistBorder =  CreateFrame("Frame", nil, button)
+	assistBorder:SetBackdrop({edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1,})
+	assistBorder:SetBackdropBorderColor(db.assistBorderColor.r,db.assistBorderColor.g,db.assistBorderColor.b,db.assistBorderColor.a)
+	assistBorder:SetFrameStrata("MEDIUM")
+	assistBorder:SetHeight(db.petBarHeight + 4)
+	assistBorder:SetWidth(db.petBarWidth + 4)
+	assistBorder:ClearAllPoints()
+	assistBorder:SetPoint("CENTER", healthBar,"CENTER")
 
 	--Highlight for the health bar
 	healthBar.highlight = healthBar:CreateTexture(nil, "OVERLAY")
-    healthBar.highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
-    healthBar.highlight:SetBlendMode("ADD")
-    healthBar.highlight:SetAlpha(0.5)
-    healthBar.highlight:ClearAllPoints()
-    healthBar.highlight:SetAllPoints(healthBar)
-    healthBar.highlight:Hide()
+	healthBar.highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+	healthBar.highlight:SetBlendMode("ADD")
+	healthBar.highlight:SetAlpha(0.5)
+	healthBar.highlight:ClearAllPoints()
+	healthBar.highlight:SetAllPoints(healthBar)
+	healthBar.highlight:Hide()
 
 	-- HealthBar Border hightlight
 	healthBar.highlightBrd = CreateFrame("Frame", nil, healthbar)
 	healthBar.highlightBrd:SetFrameLevel( healthBar:GetFrameLevel() + 1)
 	healthBar.highlightBrd:Hide()
+
+	-- Health bar loss animation
+	local cutaway = CreateFrame("Frame", "GladiusCutawayPetBar"..id, button)
+	cutaway.bar = cutaway:CreateTexture(nil, "ARTWORK")
+	cutaway.bar:SetAlpha(1) -- set from alpha
+	cutaway.bar:Hide()
+	--
+	cutaway.anim    = cutaway.bar:CreateAnimationGroup()
+	cutaway.anim.s1 = cutaway.anim:CreateAnimation("Scale")
+	cutaway.anim.s1:SetScale(0,1)
+	cutaway.anim.s1:SetOrigin("LEFT", 0, 0)
+	cutaway.anim.s1:SetDuration(0.475)
+	cutaway.anim.s1:SetSmoothing("OUT")
+	--
+	cutaway.previousValue = 1 -- init at max
+
+	-- AbsorbBar
+	local absorbBar       = CreateFrame("Frame", "GladiusAbsorbPetBar"..id, button)
+	local overAbsorbFrame = CreateFrame("Frame", "GladiusOverAbsorbGlowPet"..id, healthBar) -- hack to get the glow spark over everything
+	-- OverAbsorb
+	absorbBar.overAbsorbGlow = overAbsorbFrame:CreateTexture(nil, "OVERLAY")
+	absorbBar.overAbsorbGlow:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overshield]])
+	absorbBar.overAbsorbGlow:SetBlendMode("ADD");
+	absorbBar.overAbsorbGlow:Hide()
+	-- Total absorb
+	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER")
+	absorbBar.totalAbsorb:Hide()
+	-- Total absorb overlay
+	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER")
+	absorbBar.totalAbsorbOverlay:Hide()
 
 	--Name text
 	local nameText = healthBar:CreateFontString(nil,"LOW")
@@ -609,6 +679,7 @@ function Gladius:CreatePetButton(id, parent)
 	button.highlight = healthBar.highlight
 	button.highlightBrd = healthBar.highlightBrd
 	button.health = healthBar
+    button.cutaway = cutaway
 	button.nameText = nameText
 	button.healthText = healthText
 	button.secure = secure
@@ -644,6 +715,10 @@ function Gladius:UpdateFrame()
 	local offset = 0
 	local gridIcon = 0
 	local extraSelectedWidth = 0
+
+	if (db.smoothBar and db.smoothingAmount and (db.smoothingAmount ~= 0.33)) then
+		Gladius:SetSmoothingAmount(db.smoothingAmount)
+	end
 
 	if (db.castBar and db.castBarPos == "CENTER") then
 		margin = margin + db.castBarHeight
@@ -815,8 +890,22 @@ function Gladius:UpdateFrame()
 		button.health:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT", healthBottom, 0)
 		button.health:SetStatusBarTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture))
 		button.health.bg:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture))
+		if (db.frameBorder) then
+			button.health.border:Show()
+			button.health.border:SetWidth(button.health:GetWidth()+2)
+			button.health.border:SetHeight(button.health:GetHeight()+2)
+			button.health.border:SetBackdropColor(0, 0, 0, 0)
+			button.health.border:SetBackdropBorderColor(0, 0, 0, 1)
+		else
+			button.health.border:Hide()
+		end
 		DisableTexTiling(button.health:GetStatusBarTexture())
 		DisableTexTiling(button.health.bg)
+		if db.smoothBar then
+			Gladius:SetSmoothing(button.health, true)
+		else
+			Gladius:SetSmoothing(button.health)
+		end
 
 		-- Health bar loss animation (textures, size, position)
 		button.cutaway.bar:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
@@ -843,29 +932,45 @@ function Gladius:UpdateFrame()
 		-- absorb bar location and size
 		-- OverAbsorb
 		button.absorb.overAbsorbGlow:ClearAllPoints()
-		button.absorb.overAbsorbGlow:SetPoint("RIGHT", button.health, "RIGHT", 6, 0)
-		button.absorb.overAbsorbGlow:SetSize(12, button.health:GetHeight())
+		button.absorb.overAbsorbGlow:SetPoint("BOTTOMLEFT", button.health, "BOTTOMRIGHT", -7, 0)
+		button.absorb.overAbsorbGlow:SetPoint("TOPLEFT", button.health, "TOPRIGHT", -7, 0)
+		button.absorb.overAbsorbGlow:SetSize(16, button.health:GetHeight())
 		-- Total absorb
 		button.absorb.totalAbsorb:ClearAllPoints()
 		button.absorb.totalAbsorb:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
-		button.absorb.totalAbsorb:SetPoint("RIGHT", button.health, "RIGHT")
-		button.absorb.totalAbsorb:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
+		button.absorb.totalAbsorb:SetPoint("LEFT", button.health:GetStatusBarTexture(), "RIGHT")
+		button.absorb.totalAbsorb:SetSize((i+1)^2, button.health:GetHeight())
 		-- Total absorb overlay
 		button.absorb.totalAbsorbOverlay:ClearAllPoints()
 		button.absorb.totalAbsorbOverlay:SetHorizTile(true)
-		button.absorb.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], "MIRROR")
-		button.absorb.totalAbsorbOverlay:SetPoint("RIGHT", button.health, "RIGHT")
-		button.absorb.totalAbsorbOverlay:SetSize(button.health:GetSize()*0.5, button.health:GetHeight())
+		button.absorb.totalAbsorbOverlay:SetVertTile(true)
+		button.absorb.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], true, true)
+		button.absorb.totalAbsorbOverlay:SetPoint("LEFT", button.health:GetStatusBarTexture(), "RIGHT")
+		button.absorb.totalAbsorbOverlay:SetSize((i+1)^2, button.health:GetHeight())
 
 		--mana bar location, size and texture
 		button.mana:ClearAllPoints()
 		button.mana:SetHeight(db.manaBarHeight)
 		button.mana:SetWidth(button.health:GetWidth()+targetIconSize-gridIcon)
-		button.mana:SetPoint("TOPLEFT",button.health,"BOTTOMLEFT",0,-1)
+		button.mana:SetPoint("TOPLEFT",button.health,"BOTTOMLEFT",0,-1) -- 0,-1
 		button.mana:SetStatusBarTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture))
 		button.mana.bg:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture))
+		if (db.frameBorder) then
+			button.mana.border:Show()
+			button.mana.border:SetWidth(button.mana:GetWidth()+2)
+			button.mana.border:SetHeight(button.mana:GetHeight()+2)
+			button.mana.border:SetBackdropColor(0, 0, 0, 0)
+			button.mana.border:SetBackdropBorderColor(0, 0, 0, 1)
+		else
+			button.mana.border:Hide()
+		end
 		DisableTexTiling(button.mana:GetStatusBarTexture())
 		DisableTexTiling(button.mana.bg)
+		if db.smoothBar then
+			Gladius:SetSmoothing(button.mana, true)
+		else
+			Gladius:SetSmoothing(button.mana)
+		end
 
 		if (not db.powerBar) then
 			button.mana:Hide()
@@ -919,10 +1024,10 @@ function Gladius:UpdateFrame()
       	end
 		if (db.powerBar) then
 			local parent = db.castBarPos == "CENTER" and button.mana or button
-			button.castBar:SetPoint("TOPLEFT",parent, db.castBarPos == "CENTER" and "BOTTOMLEFT" or "TOP" .. db.castBarPos,castBarX,0)
+			button.castBar:SetPoint("TOPLEFT",parent, db.castBarPos == "CENTER" and "BOTTOMLEFT" or "TOP" .. db.castBarPos,castBarX, 0)
 		else
 			local parent = db.castBarPos == "CENTER" and button.health or button
-			button.castBar:SetPoint("TOPLEFT",parent,db.castBarPos == "CENTER" and "BOTTOMLEFT" or "TOP" .. db.castBarPos,castBarX,0)
+			button.castBar:SetPoint("TOPLEFT",parent,db.castBarPos == "CENTER" and "BOTTOMLEFT" or "TOP" .. db.castBarPos,castBarX, 0)
 		end
 		button.castBar:SetHeight(db.castBarHeight)
 
@@ -939,11 +1044,29 @@ function Gladius:UpdateFrame()
 		button.castBar:SetStatusBarColor(db.castBarColor.r,db.castBarColor.g,db.castBarColor.b,db.castBarColor.a)
 		button.castBar.bg:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture))
 		button.castBar.bg:SetVertexColor(db.castBarBgColor.r,db.castBarBgColor.g,db.castBarBgColor.b,db.castBarBgColor.a)
+		if (db.frameBorder) then
+			button.castBar.border:Show()
+			button.castBar.border:SetWidth(button.castBar:GetWidth())
+			button.castBar.border:SetHeight(button.castBar:GetHeight())
+			button.castBar.border:SetBackdropColor(0, 0, 0, 0)
+			button.castBar.border:SetBackdropBorderColor(0, 0, 0, 1)
+		else
+			button.castBar.border:Hide()
+		end
 		DisableTexTiling(button.castBar:GetStatusBarTexture())
 		DisableTexTiling(button.castBar.bg)
 
 		button.castBar.icon:SetHeight(db.castBarHeight)
 		button.castBar.icon:SetWidth(db.castBarHeight)
+		if (db.frameBorder) then
+			button.castBar.icon.border:Show()
+			button.castBar.icon.border:SetWidth(button.castBar.icon:GetWidth())
+			button.castBar.icon.border:SetHeight(button.castBar.icon:GetHeight())
+			button.castBar.icon.border:SetBackdropColor(0, 0, 0, 0)
+			button.castBar.icon.border:SetBackdropBorderColor(0, 0, 0, 1)
+		else
+			button.castBar.icon.border:Hide()
+		end
 		button.castBar.bg:ClearAllPoints()
 		button.castBar.bg:SetPoint("RIGHT",button.castBar,"RIGHT")
 		button.castBar.bg:SetWidth(button.castBar:GetWidth()+db.castBarHeight)
@@ -969,7 +1092,14 @@ function Gladius:UpdateFrame()
 
 		--font sizes and color
 		button.text:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.healthFont), db.healthFontSize)
+		if (not db.showName) then
+			button.text:Hide()
+		else
+			button.text:Show()
+		end
 		button.healthText:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.healthFont), db.healthFontSize)
+		button.healthText:ClearAllPoints()
+		button.healthText:SetPoint(db.healthTextAnchorPoint,db.healthTextOffsetX,db.healthTextOffsetY)
 		button.manaText:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.manaFont), db.manaFontSize)
 		button.classText:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.manaFont), db.manaFontSize)
 		button.castBar.spellText:SetFont(LSM:Fetch(LSM.MediaType.FONT, db.castBarFont), db.castBarFontSize, db.castBarTextOutline)
@@ -1281,33 +1411,27 @@ function Gladius:UpdateFrame()
 			button.spellCooldownFrame:SetWidth(db.barHeight+extraBarHeight)
 
 			-- Update each cooldown icon
-			local iconPadding = 0
-			if db.cooldownIconPadding then
-				iconPadding = db.cooldownIconPadding
-			else
-				iconPadding = 2 -- default
-			end
 			for i=1,14 do
 				local icon = button.spellCooldownFrame["icon"..i]
-				icon:SetHeight(button.spellCooldownFrame:GetHeight()/2)
-				icon:SetWidth(button.spellCooldownFrame:GetWidth()/2)
+				icon:SetHeight(button.spellCooldownFrame:GetHeight()/2 - (db.cooldownIconMargin/2))
+				icon:SetWidth(button.spellCooldownFrame:GetWidth()/2 - (db.cooldownIconMargin/2))
 				icon:ClearAllPoints()
 
 				if(db.cooldownPos == "RIGHT") then
 					if(i==1) then
 						icon:SetPoint("TOPLEFT",button.spellCooldownFrame)
 					elseif(i==2) then
-						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-iconPadding)
+						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-db.cooldownIconMargin)
 					elseif(i>=3) then
-						icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-2],"RIGHT",iconPadding,0)
+						icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-2],"RIGHT",db.cooldownIconMargin,0)
 					end
 				else
 					if(i==1) then
 						icon:SetPoint("TOPRIGHT",button.spellCooldownFrame)
 					elseif(i==2) then
-						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-iconPadding)
+						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-db.cooldownIconMargin)
 					elseif(i>=3) then
-						icon:SetPoint("RIGHT",button.spellCooldownFrame["icon"..i-2],"LEFT",-iconPadding,0)
+						icon:SetPoint("RIGHT",button.spellCooldownFrame["icon"..i-2],"LEFT",-db.cooldownIconMargin,0)
 					end
 				end
 
@@ -1321,9 +1445,19 @@ function Gladius:UpdateFrame()
 				icon:SetAlpha(1)
 				icon.texture:SetTexture("Interface\\Icons\\Spell_Holy_PainSupression")
 				if db.hideCooldownBorder then
-					StyleActionButton(icon, true, iconPadding)
+					StyleActionButton(icon, true, db.cooldownIconPadding)
 				else
-					StyleActionButton(icon, false, iconPadding)
+					StyleActionButton(icon, false, db.cooldownIconPadding)
+				end
+
+				if (db.frameBorder) then
+					icon.border:Show()
+					icon.border:SetWidth(icon:GetWidth()+2)
+					icon.border:SetHeight(icon:GetHeight()+2)
+					icon.border:SetBackdropColor(0, 0, 0, 0)
+					icon.border:SetBackdropBorderColor(0, 0, 0, 1)
+				else
+					icon.border:Hide()
 				end
 
 				if (not self.frame.testing) then
@@ -1496,17 +1630,6 @@ function Gladius:UpdateFrame()
 
 			button.healthText:SetText(healthText)
 
-			--set fake absorb value
-			if( db.absorbBar ) then
-				button.absorb.overAbsorbGlow:Show()
-				button.absorb.totalAbsorb:Show()
-				button.absorb.totalAbsorbOverlay:Show()
-			else
-				button.absorb.overAbsorbGlow:Hide()
-				button.absorb.totalAbsorb:Hide()
-				button.absorb.totalAbsorbOverlay:Hide()
-			end
-
 			--set the mana text
 			local currentMana, maxMana = button.manaActual, button.manaMax
 			local manaPercent = button.manaPercentage
@@ -1543,6 +1666,17 @@ function Gladius:UpdateFrame()
 				local alpha = db.trinketDisplay == "nameText" and 1 or 0.5
 				button.trinket:SetText(text)
 				button.trinket:SetAlpha(alpha)
+			end
+
+			--set fake absorb value
+			if( db.absorbBar ) then
+				button.absorb.overAbsorbGlow:Show()
+				button.absorb.totalAbsorb:Show()
+				button.absorb.totalAbsorbOverlay:Show()
+			else
+				button.absorb.overAbsorbGlow:Hide()
+				button.absorb.totalAbsorb:Hide()
+				button.absorb.totalAbsorbOverlay:Hide()
 			end
 
 		end
