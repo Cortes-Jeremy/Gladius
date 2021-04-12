@@ -1705,15 +1705,9 @@ function Gladius:Test()
 
 		--set fake absorb value
 		if( db.absorbBar ) then
-			button.absorb.overAbsorbGlow:Show()
-			button.absorb.totalAbsorb:Show()
-			button.absorb.totalAbsorbOverlay:Show()
 			button.absorb.totalAbsorb:SetWidth(100-(i^2))
 			button.absorb.totalAbsorbOverlay:SetWidth(100-(i^2))
 		else
-			button.absorb.overAbsorbGlow:Hide()
-			button.absorb.totalAbsorb:Hide()
-			button.absorb.totalAbsorbOverlay:Hide()
 			button.absorb.totalAbsorb:SetWidth(0)
 			button.absorb.totalAbsorbOverlay:SetWidth(0)
 		end
