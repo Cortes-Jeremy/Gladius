@@ -2,6 +2,7 @@ Gladius = LibStub("AceAddon-3.0"):NewAddon("Gladius", "AceEvent-3.0", "AceConsol
 local L = LibStub("AceLocale-3.0"):GetLocale("Gladius", true)
 local LSM = LibStub("LibSharedMedia-3.0")
 local LCG = LibStub("LibCustomGlow-1.0")
+local LHC = LibStub("LibHealCommArena-4.0")
 local LAM = LibStub:GetLibrary("AbsorbsMonitor-1.0", true)
 
 local arenaUnits = {}
@@ -23,6 +24,14 @@ function Gladius:OnInitialize()
 
 	self.buttons = {}
 	self.currentBracket = nil
+
+	LHC.UnregisterAllCallbacks(Gladius);
+	LHC.RegisterCallback(Gladius, "HealCommArena_HealStarted", "HealCommArena_Heal_Update")
+	LHC.RegisterCallback(Gladius, "HealCommArena_HealUpdated", "HealCommArena_Heal_Update")
+	LHC.RegisterCallback(Gladius, "HealCommArena_HealDelayed", "HealCommArena_Heal_Update")
+	LHC.RegisterCallback(Gladius, "HealCommArena_HealStopped", "HealCommArena_Heal_Update")
+	LHC.RegisterCallback(Gladius, "HealCommArena_ModifierChanged", "HealCommArena_Modified")
+	LHC.RegisterCallback(Gladius, "HealCommArena_GUIDDisappeared", "HealCommArena_Modified")
 
 	-- Populate the arenaUnits table
 	for i=1, 5 do
@@ -222,6 +231,22 @@ function Gladius:JoinedArena()
 	-- Special arena event
 	self:RegisterEvent("ARENA_OPPONENT_UPDATE")
 
+	-- HealComm Events
+	--[[ LHC.UnregisterAllCallbacks(Gladius);
+	LHC.UnregisterAllCallbacks(Gladius);
+	LHC.RegisterCallback(Gladius, "HealCommArena_HealStarted", "HealCommArena_Heal_Update")
+	LHC.RegisterCallback(Gladius, "HealCommArena_HealUpdated", "HealCommArena_Heal_Update")
+	LHC.RegisterCallback(Gladius, "HealCommArena_HealDelayed", "HealCommArena_Heal_Update")
+	LHC.RegisterCallback(Gladius, "HealCommArena_HealStopped", "HealCommArena_Heal_Update")
+	LHC.RegisterCallback(Gladius, "HealCommArena_ModifierChanged", "HealCommArena_Modified")
+	LHC.RegisterCallback(Gladius, "HealCommArena_GUIDDisappeared", "HealCommArena_Modified")]]
+
+	-- HealComm Events
+	LAM.UnregisterAllCallbacks(Gladius);
+	LAM.RegisterCallback(Gladius, "EffectApplied");
+	LAM.RegisterCallback(Gladius, "EffectUpdated");
+	LAM.RegisterCallback(Gladius, "EffectRemoved");
+
 	-- Find out the current bracket size
 	for i=1, MAX_BATTLEFIELD_QUEUES do
 		local status, _, _, _, _, teamSize = GetBattlefieldStatus(i)
@@ -242,6 +267,7 @@ function Gladius:JoinedArena()
 			button = self:CreateButton(i)
 			self.buttons[unit] = button
 			self.buttons[pet] = button.pet
+			self.buttons[unit].unit = unit
 		end
 
 		button:Show()
@@ -324,7 +350,7 @@ function Gladius:UNIT_HEALTH(event, unit)
 
 		-- update absorb bar
 		if( db.absorbBar and (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) ) then
-			Gladius:UpdateAbsorb(event, unit, button)
+			Gladius:UpdateAbsorbBar(event, unit, button)
 		end
 
 		-- update cutaway
@@ -457,7 +483,7 @@ function Gladius:UNIT_AURA(event, unit)
 
 		-- update absorb bar
 		if( db.absorbBar and (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) ) then
-			Gladius:UpdateAbsorb(event, unit, button)
+			Gladius:UpdateAbsorbBar(event, unit, button)
 		end
 
 		local aura = button.auraFrame
@@ -617,7 +643,7 @@ function Gladius:UNIT_SPELLCAST_START(event, unit)
 		if(not button) then return end
 
 		local castBar = button.castBar
-		if( db.castBarOnCast ) then
+		if (db.castBar and db.castBarOnCast) then
 			castBar:Show()
 		end
 		castBar.isCasting = true
@@ -651,7 +677,7 @@ function Gladius:UNIT_SPELLCAST_CHANNEL_START(event, unit)
 		if(not button) then return end
 
 		local castBar = self.buttons[unit].castBar
-		if ( db.castBarOnCast ) then
+		if (db.castBar and db.castBarOnCast) then
 			castBar:Show()
 		end
 		castBar.isChanneling = true
@@ -705,7 +731,7 @@ function Gladius:UNIT_SPELLCAST_DELAYED(event, unit)
 end
 
 function Gladius:CastEnd(bar)
-	if ( db.castBarOnCast ) then
+	if (db.castBar and db.castBarOnCast) then
 		bar:Hide()
 	end
 	bar.isCasting = nil
@@ -1703,15 +1729,6 @@ function Gladius:Test()
 			button.manaText:Hide()
 		end
 
-		--set fake absorb value
-		if( db.absorbBar ) then
-			button.absorb.totalAbsorb:SetWidth(100-(i^2))
-			button.absorb.totalAbsorbOverlay:SetWidth(100-(i^2))
-		else
-			button.absorb.totalAbsorb:SetWidth(0)
-			button.absorb.totalAbsorbOverlay:SetWidth(0)
-		end
-
 		--Check if it's a pet class and in that case update the frame to fit
 		button.isPetClass = petClasses[class] and true or false
 
@@ -1744,8 +1761,37 @@ function Gladius:Test()
 
 end
 
+-- Utils used by absorbar
+function Gladius:SearchButtonByGUID(GUID)
+	for _, button in pairs(self.buttons) do
+		if( GUID and button.GUID == GUID) then
+			return button
+		end
+	end
+end
+
 -- Absorb Update
-function Gladius:UpdateAbsorb(event, unit, button)
+function Gladius:EffectApplied(event, ...)
+    local sourceGUID, sourceName, destGUID, destName, spellId, value, quality, duration = ...
+    self:PreUpdateAbsorbBar(event, destGUID, destName)
+end
+function Gladius:EffectUpdated(event, ...)
+    local guid, spellId, value, duration = ...
+    self:PreUpdateAbsorbBar(event, guid)
+end
+function Gladius:EffectRemoved(event, ...)
+    local guid, spellId = ...
+    self:PreUpdateAbsorbBar(event, guid)
+end
+function Gladius:PreUpdateAbsorbBar(event, destGUID, name)
+	local button = self:SearchButtonByGUID(destGUID)
+	if (button) then
+		if( db.absorbBar and (arenaUnits[button.unit] == "playerUnit" or (arenaUnits[button.unit] ~= "playerUnit" and db.showPets)) ) then
+			self:UpdateAbsorbBar(event, button.unit, button)
+		end
+	end
+end
+function Gladius:UpdateAbsorbBar(event, unit, button)
 
 	local health    = UnitHealth(unit)
 	local maxHealth = UnitHealthMax(unit)
@@ -1789,4 +1835,87 @@ function Gladius:UpdateAbsorb(event, unit, button)
 		button.absorb.overAbsorbGlow:Hide();
 	end
 
+end
+
+-- HealComm (Heal Prediction)
+local function Update(self)
+	local unit = self.unit
+	local element = self.HealCommBar
+
+	--[[ Callback: HealthPrediction:PreUpdate(unit)
+	Called before the element has been updated.
+
+	* self - the HealthPrediction element
+	* unit - the unit for which the update has been triggered (string)
+	--]]
+	if element.PreUpdate then
+		element:PreUpdate(unit)
+	end
+
+	local guid = UnitGUID(unit)
+	local timeFrame = self.HealCommTimeframe and GetTime() + self.HealCommTimeframe or nil
+	local myIncomingHeal = HealComm:GetHealAmount(guid, HealComm.ALL_HEALS, timeFrame, UnitGUID("player")) or 0
+	local allIncomingHeal = HealComm:GetHealAmount(guid, HealComm.ALL_HEALS, timeFrame) or 0
+	local health = UnitHealth(unit)
+	local maxHealth = UnitHealthMax(unit)
+	local maxOverflowHP = maxHealth * element.maxOverflow
+	local otherIncomingHeal = 0
+
+	if health + allIncomingHeal > maxOverflowHP then
+		allIncomingHeal = maxOverflowHP - health
+	end
+
+	if allIncomingHeal < myIncomingHeal then
+		myIncomingHeal = allIncomingHeal
+	else
+		otherIncomingHeal = allIncomingHeal - myIncomingHeal
+	end
+
+	if element.myBar then
+		element.myBar:SetMinMaxValues(0, maxHealth)
+		element.myBar:SetValue(myIncomingHeal)
+		element.myBar:Show()
+	end
+
+	if element.otherBar then
+		element.otherBar:SetMinMaxValues(0, maxHealth)
+		element.otherBar:SetValue(otherIncomingHeal)
+		element.otherBar:Show()
+	end
+
+	--[[ Callback: HealthPrediction:PostUpdate(unit, myIncomingHeal, otherIncomingHeal)
+	Called after the element has been updated.
+
+	* self              - the HealthPrediction element
+	* unit              - the unit for which the update has been triggered (string)
+	* myIncomingHeal    - the amount of incoming healing done by the player (number)
+	* otherIncomingHeal - the amount of incoming healing done by others (number)
+	--]]
+	if element.PostUpdate then
+		return element:PostUpdate(unit, myIncomingHeal, otherIncomingHeal)
+	end
+end
+local function MultiUpdate(...)
+	for i = 1, select("#", ...) do
+		--[[ for j = 1, #enabledUF do
+			local frame = enabledUF[j]
+
+			if frame.unit and frame:IsVisible() and UnitGUID(frame.unit) == select(i, ...) then
+				Path(frame)
+			end
+		end ]]
+		if (UnitGUID('arena1') == select(i, ...)) then
+			local allIncomingHeal = LHC:GetHealAmount(select(i, ...), LHC.ALL_HEALS, nil) or 0
+			print('updated arena1', allIncomingHeal)
+		elseif (UnitGUID('arena2') == select(i, ...)) then
+			local allIncomingHeal = LHC:GetHealAmount(select(i, ...), LHC.ALL_HEALS, nil) or 0
+			print('updated arena2', allIncomingHeal)
+		end
+	end
+end
+function Gladius:HealCommArena_Heal_Update(event, casterGUID, spellID, spellType, endTime, ...) -- ... = unpacked guid
+	MultiUpdate(...)
+end
+function Gladius:HealCommArena_Modified(event, guid)
+	MultiUpdate(guid)
 end

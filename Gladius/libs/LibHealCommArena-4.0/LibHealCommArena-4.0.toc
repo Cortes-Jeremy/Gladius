@@ -1,0 +1,14 @@
+## Interface: 30300
+## Title: Lib: HealCommArena-4.0
+## Notes: Library for showing incoming heals and hots of arena enemy player
+## Author: Shadowed
+## X-Category: Library
+## X-Curse-Packaged-Version: v1.6.6
+## X-Curse-Project-Name: LibHealCommArena-4.0
+## X-Curse-Project-ID: libhealcommarena-4-0
+## X-Curse-Repository-ID: wow/libhealcommarena-4-0/mainline
+
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0\CallbackHandler-1.0.xml
+
+LibHealCommArena-4.0.xml

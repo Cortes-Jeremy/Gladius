@@ -4,8 +4,6 @@ local currentBracket
 local LSM = LibStub("LibSharedMedia-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("Gladius", true)
 
-
-
 local function DisableTexTiling(texture)
 	texture:SetHorizTile(false)
 	texture:SetVertTile(false)
@@ -640,7 +638,7 @@ function Gladius:CreatePetButton(id, parent)
 	absorbBar.overAbsorbGlow:SetBlendMode("ADD");
 	absorbBar.overAbsorbGlow:Hide()
 	-- Total absorb
-	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER")
+	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BACKGROUND")
 	absorbBar.totalAbsorb:Hide()
 	-- Total absorb overlay
 	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER")
@@ -939,14 +937,28 @@ function Gladius:UpdateFrame()
 		button.absorb.totalAbsorb:ClearAllPoints()
 		button.absorb.totalAbsorb:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, db.barTexture)) -- same bar as health bar
 		button.absorb.totalAbsorb:SetPoint("LEFT", button.health:GetStatusBarTexture(), "RIGHT")
-		button.absorb.totalAbsorb:SetSize((i+1)^2, button.health:GetHeight())
+		button.absorb.totalAbsorb:SetSize(0, button.health:GetHeight())
 		-- Total absorb overlay
 		button.absorb.totalAbsorbOverlay:ClearAllPoints()
 		button.absorb.totalAbsorbOverlay:SetHorizTile(true)
 		button.absorb.totalAbsorbOverlay:SetVertTile(true)
 		button.absorb.totalAbsorbOverlay:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\Shield-Overlay]], true, true)
 		button.absorb.totalAbsorbOverlay:SetPoint("LEFT", button.health:GetStatusBarTexture(), "RIGHT")
-		button.absorb.totalAbsorbOverlay:SetSize((i+1)^2, button.health:GetHeight())
+		button.absorb.totalAbsorbOverlay:SetSize(0, button.health:GetHeight())
+
+		if( db.absorbBar and self.frame.testing ) then
+			button.absorb.totalAbsorb:Show()
+			button.absorb.totalAbsorbOverlay:Show()
+			button.absorb.overAbsorbGlow:Show()
+			button.absorb.totalAbsorb:SetWidth((i+1)^2)
+			button.absorb.totalAbsorbOverlay:SetWidth((i+1)^2)
+		else
+			button.absorb.overAbsorbGlow:Hide()
+			button.absorb.totalAbsorb:Hide()
+			button.absorb.totalAbsorbOverlay:Hide()
+			button.absorb.totalAbsorb:SetWidth(0)
+			button.absorb.totalAbsorbOverlay:SetWidth(0)
+		end
 
 		--mana bar location, size and texture
 		button.mana:ClearAllPoints()
@@ -1413,17 +1425,30 @@ function Gladius:UpdateFrame()
 			-- Update each cooldown icon
 			for i=1,14 do
 				local icon = button.spellCooldownFrame["icon"..i]
-				icon:SetHeight(button.spellCooldownFrame:GetHeight()/2 - (db.cooldownIconMargin/2))
-				icon:SetWidth(button.spellCooldownFrame:GetWidth()/2 - (db.cooldownIconMargin/2))
+				if db.cooldownOneLine then
+					icon:SetHeight(button.spellCooldownFrame:GetHeight() - db.cooldownIconMargin)
+					icon:SetWidth(button.spellCooldownFrame:GetWidth() - db.cooldownIconMargin)
+				else
+					icon:SetHeight(button.spellCooldownFrame:GetHeight()/2 - (db.cooldownIconMargin/2))
+					icon:SetWidth(button.spellCooldownFrame:GetWidth()/2 - (db.cooldownIconMargin/2))
+				end
 				icon:ClearAllPoints()
 
 				if(db.cooldownPos == "RIGHT") then
-					if(i==1) then
-						icon:SetPoint("TOPLEFT",button.spellCooldownFrame)
-					elseif(i==2) then
-						icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-db.cooldownIconMargin)
-					elseif(i>=3) then
-						icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-2],"RIGHT",db.cooldownIconMargin,0)
+					if db.cooldownOneLine then
+						if(i==1) then
+							icon:SetPoint("TOPLEFT",button.spellCooldownFrame,"TOPLEFT",0,-(db.cooldownIconMargin/2))
+						elseif(i>=2) then
+							icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-1],"RIGHT",db.cooldownIconMargin,0)
+						end
+					else
+						if(i==1) then
+							icon:SetPoint("TOPLEFT",button.spellCooldownFrame)
+						elseif(i==2) then
+							icon:SetPoint("TOP",button.spellCooldownFrame["icon"..i-1],"BOTTOM",0,-db.cooldownIconMargin)
+						elseif(i>=3) then
+							icon:SetPoint("LEFT",button.spellCooldownFrame["icon"..i-2],"RIGHT",db.cooldownIconMargin,0)
+						end
 					end
 				else
 					if(i==1) then
@@ -1666,17 +1691,6 @@ function Gladius:UpdateFrame()
 				local alpha = db.trinketDisplay == "nameText" and 1 or 0.5
 				button.trinket:SetText(text)
 				button.trinket:SetAlpha(alpha)
-			end
-
-			--set fake absorb value
-			if( db.absorbBar ) then
-				button.absorb.overAbsorbGlow:Show()
-				button.absorb.totalAbsorb:Show()
-				button.absorb.totalAbsorbOverlay:Show()
-			else
-				button.absorb.overAbsorbGlow:Hide()
-				button.absorb.totalAbsorb:Hide()
-				button.absorb.totalAbsorbOverlay:Hide()
 			end
 
 		end
