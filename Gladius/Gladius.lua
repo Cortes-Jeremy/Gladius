@@ -4,6 +4,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local LCG = LibStub("LibCustomGlow-1.0")
 local LHC = LibStub("LibHealCommArena-4.0")
 local LAM = LibStub:GetLibrary("AbsorbsMonitor-1.0", true)
+local LDB = LibStub ("LibDataBroker-1.1")
+local LDBIcon = LibStub("LibDBIcon-1.0")
 
 local arenaUnits = {}
 local arenaGUID = {}
@@ -96,6 +98,9 @@ function Gladius:OnInitialize()
 	self.drTime = { "50%", "25%", L["immune"] }
 
 	self:SetupOptions()
+
+	-- Create Minimap Icon
+	self:CreateMinimapButton()
 end
 
 function Gladius:OnEnable()
@@ -127,6 +132,30 @@ function Gladius:OnProfileChanged(event, database, newProfileKey)
 	-- display a test frame
 	self:HideFrame()
 	self:ToggleFrame(5)
+end
+
+function Gladius:CreateMinimapButton()
+	local GladiusLDB = LDB:NewDataObject("GladiusMinimapIcon", {
+		type = "data source",
+		icon = [[Interface\AddOns\Gladius\media\Icons\Gladius]],
+		text = "0",
+		OnClick = function(self, button)
+
+			if button == "LeftButton" then
+				Gladius:ShowOptions()
+			end
+			if button == "RightButton" then
+				Gladius:ToggleFrame(5)
+			end
+
+		end,
+		OnTooltipShow = function (tooltip)
+			tooltip:AddLine ("|cffe5e3e3Gladius|r |cff1784d1Enhanced|r")
+			tooltip:AddLine ("|cff1784d1Left Click|r: show/hide Gladius UI")
+			tooltip:AddLine ("|cff1784d1Right Click|r: show/hide Test Frames")
+		end,
+	})
+	LDBIcon:Register("GladiusMinimapIcon", GladiusLDB, Gladius.db.profile.minimapIcon)
 end
 
 function Gladius:ZONE_CHANGED_NEW_AREA()

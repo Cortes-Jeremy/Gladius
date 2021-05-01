@@ -28,6 +28,7 @@ local justifyValues = {
 
 local defaults = {
 	profile = {
+		minimapIcon={hide=false},
 		x=0,
 		y=0,
 		frameScale = 1,
