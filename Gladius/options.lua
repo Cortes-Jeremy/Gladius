@@ -28,6 +28,7 @@ local justifyValues = {
 
 local defaults = {
 	profile = {
+		minimapIcon={hide=false},
 		x=0,
 		y=0,
 		frameScale = 1,
@@ -157,6 +158,7 @@ local defaults = {
 		smoothingAmount = 0.33,
 		cutawayBar = false,
 		cooldown = false,
+		cooldownOneLine = false,
 		cooldownIconPadding = 2,
 		cooldownIconMargin = 2,
 		hideCooldownBorder = false,
@@ -227,6 +229,7 @@ local function slashHandler(option)
 		self:Print(L["Valid slash commands are:"])
 		self:Print(L["/gladius ui"])
 		self:Print(L["/gladius test1-5"])
+		self:Print(L["/gladius trinket"])
 		self:Print(L["/gladius hide"])
 	end
 end
@@ -839,6 +842,12 @@ function Gladius:SetupOptions()
 				desc=L["Bar settings"],
 				order=2,
 				args = {
+					castBar = {
+						type="toggle",
+						name=L["Show cast bars"],
+						desc=L["Show cast bars"],
+						order=0,
+					},
 					castBarPos = {
 						type="select",
 						name=L["Cast bar position"],
@@ -848,14 +857,8 @@ function Gladius:SetupOptions()
 							["RIGHT"] = L["Right"],
 							["LEFT"] = L["Left"],
 						},
-						order=4,
+						order=2,
                		},
-					castBar = {
-						type="toggle",
-						name=L["Show cast bars"],
-						desc=L["Show cast bars"],
-						order=1,
-					},
 					castBarSpark = {
 						type="toggle",
 						name=L["Show cast bars spark"],
@@ -1897,6 +1900,11 @@ function Gladius:SetupOptions()
 				name=L["Show cooldown icons"],
 				order=0,
 			},
+			cooldownOneLine = {
+				type="toggle",
+				name=L["Show cooldown icons on one line"],
+				order=1,
+			},
 			cooldownPos = {
 				type="select",
 				name=L["Cooldown position"],
@@ -1905,7 +1913,7 @@ function Gladius:SetupOptions()
 					["RIGHT"] = L["Right"],
 					["LEFT"] = L["Left"],
 				},
-				order=1,
+				order=2,
 			},
 			hideCooldownBorder = {
 				type="toggle",
@@ -1916,7 +1924,7 @@ function Gladius:SetupOptions()
 				type="range",
 				name=L["Cooldown icon margin"],
 				min=0,
-				max=13,
+				max=35,
 				step=0.1,
 				order=6,
 			},
@@ -1924,7 +1932,7 @@ function Gladius:SetupOptions()
 				type="range",
 				name=L["Cooldown icon padding"],
 				min=0,
-				max=8,
+				max=13,
 				step=0.1,
 				order=7,
 			},

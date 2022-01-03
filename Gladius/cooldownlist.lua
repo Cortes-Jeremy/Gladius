@@ -14,6 +14,7 @@ function Gladius:GetCooldownList()
          [12472] 	= { cd = 180, spec = L["Frost"], },    -- Icy Veins
          [31687] 	= { cd = 180, spec = L["Frost"], },    -- Summon Water Elemental
          [12043] 	= { cd = 120, spec = L["Arcane"], },   -- Presence of Mind
+         [42950] 	= { cd = 20, spec = L["Fire"] },      -- Combustion
          [11129] 	= { cd = 120, spec = L["Fire"] },      -- Combustion
          [12042] 	= { cd = 120, spec = L["Arcane"], },   -- Arcane Power
          [11958] 	= { cd = 480, spec = L["Frost"],       -- Coldsnap
@@ -48,6 +49,8 @@ function Gladius:GetCooldownList()
          [49576] 	= 35,    -- Death Grip
          [47568] 	= 300,   -- Empower Rune Weapon
          [48743] 	= 120,   -- Death Pact
+         [49039] 	= 120,   -- Lichborne
+         [47481] 	= { cd = 60, spec = L["Unholy"], },   -- Pet Gnaw
          [51052] 	= { cd = 120, spec = L["Unholy"], },   -- Anti-Magic Zone
          [46584] 	= { cd = 180, notSpec = L["Unholy"], }, -- Raise Dead
          [49206] 	= { cd = 180, spec = L["Unholy"], },   -- Summon Gargoyle
@@ -83,6 +86,7 @@ function Gladius:GetCooldownList()
          [10278] 	= 300,   -- Hand of Protection
          [1044] 	= 25,    -- Hand of Freedom
          [54428] 	= 60,    -- Divine Plea
+         [6940] 	= 120,   -- Hand of Sacrifice
          [64205] 	= 120,   -- Divine Sacrifice
          [10308] 	= { cd = 60, [L["Protection"]] = 40, },   -- Hammer of Justice
          [642] 	= { cd = 300,                             -- Divine Shield
