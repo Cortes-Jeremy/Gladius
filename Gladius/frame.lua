@@ -273,7 +273,7 @@ function Gladius:CreateButton(i)
     absorbBar.overAbsorbGlow:SetBlendMode("ADD");
     absorbBar.overAbsorbGlow:Hide()
 	-- Total absorb
-	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BORDER")
+	absorbBar.totalAbsorb = absorbBar:CreateTexture(nil, "BACKGROUND")
     absorbBar.totalAbsorb:Hide()
 	-- Total absorb overlay
 	absorbBar.totalAbsorbOverlay = absorbBar:CreateTexture(nil, "BORDER")

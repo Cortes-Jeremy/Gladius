@@ -1,8 +1,8 @@
-Gladius = LibStub("AceAddon-3.0"):NewAddon("Gladius", "AceEvent-3.0", "AceConsole-3.0")
+Gladius = LibStub("AceAddon-3.0"):NewAddon("Gladius", "AceEvent-3.0", "AceConsole-3.0", "AceComm-3.0", "AceTimer-3.0", "AceSerializer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("Gladius", true)
 local LSM = LibStub("LibSharedMedia-3.0")
 local LCG = LibStub("LibCustomGlow-1.0")
-local LHC = LibStub("LibHealCommArena-4.0")
+--[[ local LHC = LibStub("LibHealCommArena-4.0") ]]
 local LAM = LibStub:GetLibrary("AbsorbsMonitor-1.0", true)
 local LDB = LibStub ("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
@@ -27,13 +27,13 @@ function Gladius:OnInitialize()
 	self.buttons = {}
 	self.currentBracket = nil
 
-	LHC.UnregisterAllCallbacks(Gladius);
+	--[[ LHC.UnregisterAllCallbacks(Gladius);
 	LHC.RegisterCallback(Gladius, "HealCommArena_HealStarted", "HealCommArena_Heal_Update")
 	LHC.RegisterCallback(Gladius, "HealCommArena_HealUpdated", "HealCommArena_Heal_Update")
 	LHC.RegisterCallback(Gladius, "HealCommArena_HealDelayed", "HealCommArena_Heal_Update")
 	LHC.RegisterCallback(Gladius, "HealCommArena_HealStopped", "HealCommArena_Heal_Update")
 	LHC.RegisterCallback(Gladius, "HealCommArena_ModifierChanged", "HealCommArena_Modified")
-	LHC.RegisterCallback(Gladius, "HealCommArena_GUIDDisappeared", "HealCommArena_Modified")
+	LHC.RegisterCallback(Gladius, "HealCommArena_GUIDDisappeared", "HealCommArena_Modified") ]]
 
 	-- Populate the arenaUnits table
 	for i=1, 5 do
@@ -270,7 +270,7 @@ function Gladius:JoinedArena()
 	LHC.RegisterCallback(Gladius, "HealCommArena_ModifierChanged", "HealCommArena_Modified")
 	LHC.RegisterCallback(Gladius, "HealCommArena_GUIDDisappeared", "HealCommArena_Modified")]]
 
-	-- HealComm Events
+	-- Absorb Events
 	LAM.UnregisterAllCallbacks(Gladius);
 	LAM.RegisterCallback(Gladius, "EffectApplied");
 	LAM.RegisterCallback(Gladius, "EffectUpdated");
@@ -1825,7 +1825,7 @@ function Gladius:UpdateAbsorbBar(event, unit, button)
 	local health    = UnitHealth(unit)
 	local maxHealth = UnitHealthMax(unit)
 	local _guid     = UnitGUID(unit)
-	local myCurrentHealAbsorb = LAM.Unit_Total(_guid)
+	local myCurrentHealAbsorb = LAM.Unit_Total(_guid) * 2 -- only enemy
 
 	--
 	function CompactUnitFrameUtil_UpdateFillBar(self, frame, previousTexture, health, myCurrentHealAbsorb)
@@ -1867,16 +1867,10 @@ function Gladius:UpdateAbsorbBar(event, unit, button)
 end
 
 -- HealComm (Heal Prediction)
-local function Update(self)
+--[[ local function Update(self)
 	local unit = self.unit
 	local element = self.HealCommBar
 
-	--[[ Callback: HealthPrediction:PreUpdate(unit)
-	Called before the element has been updated.
-
-	* self - the HealthPrediction element
-	* unit - the unit for which the update has been triggered (string)
-	--]]
 	if element.PreUpdate then
 		element:PreUpdate(unit)
 	end
@@ -1912,27 +1906,9 @@ local function Update(self)
 		element.otherBar:Show()
 	end
 
-	--[[ Callback: HealthPrediction:PostUpdate(unit, myIncomingHeal, otherIncomingHeal)
-	Called after the element has been updated.
-
-	* self              - the HealthPrediction element
-	* unit              - the unit for which the update has been triggered (string)
-	* myIncomingHeal    - the amount of incoming healing done by the player (number)
-	* otherIncomingHeal - the amount of incoming healing done by others (number)
-	--]]
-	if element.PostUpdate then
-		return element:PostUpdate(unit, myIncomingHeal, otherIncomingHeal)
-	end
 end
 local function MultiUpdate(...)
 	for i = 1, select("#", ...) do
-		--[[ for j = 1, #enabledUF do
-			local frame = enabledUF[j]
-
-			if frame.unit and frame:IsVisible() and UnitGUID(frame.unit) == select(i, ...) then
-				Path(frame)
-			end
-		end ]]
 		if (UnitGUID('arena1') == select(i, ...)) then
 			local allIncomingHeal = LHC:GetHealAmount(select(i, ...), LHC.ALL_HEALS, nil) or 0
 			print('updated arena1', allIncomingHeal)
@@ -1947,4 +1923,4 @@ function Gladius:HealCommArena_Heal_Update(event, casterGUID, spellID, spellType
 end
 function Gladius:HealCommArena_Modified(event, guid)
 	MultiUpdate(guid)
-end
+end ]]

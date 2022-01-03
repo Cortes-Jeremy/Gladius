@@ -12,10 +12,14 @@
     <Include file="libs\AceConfig-3.0\AceConfig-3.0.xml"/>
     <Include file="libs\AceLocale-3.0\AceLocale-3.0.xml"/>
     <Include file="libs\AceEvent-3.0\AceEvent-3.0.xml"/>
+    <Include file="libs\AceSerializer-3.0\AceSerializer-3.0.xml"/>
+    <Include file="libs\AceComm-3.0\AceComm-3.0.xml"/>
+    <Include file="libs\AceTimer-3.0\AceTimer-3.0.xml"/>
     <Include file="libs\LibSharedMedia-3.0\lib.xml"/>
     <Include file="libs\AceGUI-3.0-SharedMediaWidgets\widget.xml"/>
     <Include file="libs\LibCustomGlow-1.0\LibCustomGlow-1.0.xml"/>
     <Include file="libs\AbsorbsMonitor-1.0\AbsorbsMonitor-1.0.xml"/>
-    <Include file="libs\LibHealCommArena-4.0\LibHealCommArena-4.0.xml"/>
+	<!-- <Include file="libs\SpecializedAbsorbs-1.0\SpecializedAbsorbs-1.0.xml"/> -->
+    <!-- <Include file="libs\LibHealCommArena-4.0\LibHealCommArena-4.0.xml"/> -->
 
 </Ui>
