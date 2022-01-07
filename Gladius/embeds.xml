@@ -20,6 +20,5 @@
     <Include file="libs\LibCustomGlow-1.0\LibCustomGlow-1.0.xml"/>
     <Include file="libs\AbsorbsMonitor-1.0\AbsorbsMonitor-1.0.xml"/>
 	<!-- <Include file="libs\SpecializedAbsorbs-1.0\SpecializedAbsorbs-1.0.xml"/> -->
-    <!-- <Include file="libs\LibHealCommArena-4.0\LibHealCommArena-4.0.xml"/> -->
 
 </Ui>

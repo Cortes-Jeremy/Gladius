@@ -76,7 +76,7 @@ function Gladius:GetSpecSpellList()
 		[GetSpellInfo(33206)]	= L["Discipline"],		-- Pain Suppression
 		[GetSpellInfo(34861)]	= L["Holy"],			-- Circle of Healing
 		[GetSpellInfo(15487)]	= L["Shadow"],			-- Silence
-		[GetSpellInfo(48160)]	= L["Shadow"],			-- Vampiric Touch	
+		[GetSpellInfo(48160)]	= L["Shadow"],			-- Vampiric Touch
 		-- DEATHKNIGHT
 		[GetSpellInfo(55262)]	= L["Blood"],			-- Heart Strike
 		[GetSpellInfo(49203)]	= L["Frost"],			-- Hungering Cold
