@@ -185,8 +185,13 @@ function Gladius:ClearAllUnits()
 				--reset Glow settings
 				if( icon.glowActive ) then
 					if( db.cooldownAuraGlow ) then LCG.ButtonGlow_Stop(icon) end
+					if( db.desa ) then LCG.ButtonGlow_Stop(icon) end
 					icon.glowActive = false;
+					icon.texture:SetDesaturated(0)
 				end
+				icon.texture:SetDesaturated(0)
+				icon:SetAlpha(1)
+
 				icon:Hide()
 			end
 
@@ -356,6 +361,7 @@ function Gladius:UNIT_HEALTH(event, unit)
 		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
 			if (not button:IsShown()) then button:Show() end
 			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
+			if (button.deadIcon.icon:IsShown()) then button.deadIcon.icon:Hide() end
 		end
 
 		-- update absorb bar
@@ -414,6 +420,7 @@ function Gladius:UNIT_HEALTH(event, unit)
 			button.healthText:SetText("DEAD")
 			button.health:SetValue(0)
 			button:SetAlpha(0.5)
+			--button.deadIcon.icon:Show()
 		end
 
 	end
@@ -1205,12 +1212,8 @@ function Gladius:CooldownReady(button, spellId, frame)
          frame = button.spellCooldownFrame["icon" .. i]
          if (frame.spellId == spellId) then
             frame.active = false
-			if( db.cooldownDesaturate ) then
-				frame.texture:SetDesaturated(0)
-			end
-			if( db.cooldownOpacity ) then
-			   frame:SetAlpha(1)
-			end
+			if( db.cooldownDesaturate ) then frame.texture:SetDesaturated(0) end
+			if( db.cooldownOpacity )    then frame:SetAlpha(1) end
             --frame.cooldown:Hide() -- no point in hidding
             frame:SetScript("OnUpdate", nil)
          end
@@ -1218,12 +1221,8 @@ function Gladius:CooldownReady(button, spellId, frame)
 
    	else
 		frame.active = false
-		if( db.cooldownDesaturate ) then
-			frame.texture:SetDesaturated(0)
-		end
-		if( db.cooldownOpacity ) then
-			frame:SetAlpha(1)
-		end
+		if( db.cooldownDesaturate ) then frame.texture:SetDesaturated(0) end
+		if( db.cooldownOpacity )    then frame:SetAlpha(1) end
 		--frame.cooldown:Hide() -- no point in hidding
 		frame:SetScript("OnUpdate", nil)
    	end
@@ -1323,6 +1322,7 @@ function Gladius:UnitDeath(GUID)
 		local button = self.buttons[unit]
 		if(not button) then return end
 
+		button.deadIcon.icon:Show()
 		button.health:SetValue(0)
 		button.healthText:SetText("DEAD")
 		button.mana:SetValue(0)
