@@ -344,12 +344,12 @@ function Gladius:CreateButton(i)
     classIcon:SetPoint("TOP" .. db.auraPos, button, "TOP" .. db.auraPos, db.auraPos == "LEFT" and -2 or classIconSize, 0)
 
 	-- Dead icon
-	local deadIcon = CreateFrame("Frame", "GladiusDeadIcon"..i, button)
-	deadIcon:SetFrameStrata("HIGH")
-	deadIcon.icon = deadIcon:CreateTexture(nil, "OVERLAY")
-	deadIcon.icon:SetTexture([[Interface\AddOns\Gladius\media\RaidFrame\skull]])
-	deadIcon.icon:SetBlendMode("ADD")
-	deadIcon.icon:Hide()
+	local DeathIcon = CreateFrame("Frame", "GladiusDeathIcon"..i, button)
+	DeathIcon:SetFrameStrata("HIGH")
+	DeathIcon.icon = DeathIcon:CreateTexture(nil, "OVERLAY")
+	DeathIcon.icon:SetTexture([[Interface\AddOns\Gladius\media\pvpframe\DeathIcon]])
+	DeathIcon.icon:SetBlendMode("ADD")
+	DeathIcon.icon:Hide()
 
  	--Aura frame
 	local auraFrame = CreateFrame("Frame", nil, button)
@@ -542,7 +542,7 @@ function Gladius:CreateButton(i)
     button.gridTrinket = gridTrinket
     button.classText = classText
     button.classIcon = classIcon
-    button.deadIcon = deadIcon
+    button.DeathIcon = DeathIcon
     button.targetIcon = targetIcon
     button.auraFrame = auraFrame
     button.debuffFrame = debuffFrame
@@ -1202,10 +1202,10 @@ function Gladius:UpdateFrame()
 		end
 
 		-- Dead Icon
-		button.deadIcon.icon:ClearAllPoints()
-		button.deadIcon.icon:SetPoint("CENTER", button.health, "CENTER", 0, 0)
-		button.deadIcon.icon:SetSize(button.health:GetHeight(), button.health:GetHeight())
-		button.deadIcon.icon:Hide()
+		button.DeathIcon.icon:ClearAllPoints()
+		button.DeathIcon.icon:SetPoint("CENTER", button.health, "CENTER", 0, 0)
+		button.DeathIcon.icon:SetSize(button.health:GetHeight() * 0.8, button.health:GetHeight() * 0.8)
+		button.DeathIcon.icon:Hide()
 
 		--text toggling
 		if (not db.classText and not db.raceText) then

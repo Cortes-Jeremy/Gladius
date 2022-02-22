@@ -361,7 +361,7 @@ function Gladius:UNIT_HEALTH(event, unit)
 		if (arenaUnits[unit] == "playerUnit" or (arenaUnits[unit] ~= "playerUnit" and db.showPets)) then
 			if (not button:IsShown()) then button:Show() end
 			if (button:GetAlpha() < 1) then button:SetAlpha(1) end
-			if (button.deadIcon.icon:IsShown()) then button.deadIcon.icon:Hide() end
+			--if (button.DeathIcon.icon:IsShown()) then button.DeathIcon.icon:Hide() end
 		end
 
 		-- update absorb bar
@@ -420,7 +420,7 @@ function Gladius:UNIT_HEALTH(event, unit)
 			button.healthText:SetText("DEAD")
 			button.health:SetValue(0)
 			button:SetAlpha(0.5)
-			--button.deadIcon.icon:Show()
+			--button.DeathIcon.icon:Show()
 		end
 
 	end
@@ -1322,7 +1322,7 @@ function Gladius:UnitDeath(GUID)
 		local button = self.buttons[unit]
 		if(not button) then return end
 
-		button.deadIcon.icon:Show()
+		button.DeathIcon.icon:Show()
 		button.health:SetValue(0)
 		button.healthText:SetText("DEAD")
 		button.mana:SetValue(0)
