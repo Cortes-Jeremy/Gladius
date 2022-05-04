@@ -1647,7 +1647,7 @@ function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)
 		elseif(type == "unseen") then
 			Gladius.buttons[unit]:SetAlpha(0.25)
 		elseif(type == "destroyed") then
-			Gladius.buttons[unit]:SetAlpha(0)
+			Gladius.buttons[unit]:SetAlpha(0.25)
 		end
 	end
 end
