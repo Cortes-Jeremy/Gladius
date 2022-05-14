@@ -690,7 +690,7 @@ function Gladius:UNIT_SPELLCAST_START(event, unit)
 		end
 
 		-- Spec detection
-		self:DetectSpec(unit, self.specSpells[spell])
+		self:DetectSpec(unit, self.specSpells[spell] or self.specBuffs[spell])
 
 		-- Resurrection alert
 		if(RESURRECTION_SPELLS[spell] and db.resAnnounce) then
@@ -1119,7 +1119,7 @@ function Gladius:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell, rank)
 		if ( unit == "player" ) then unit = "arena1" end
 
 		-- Spec detection for instant cast spells
-		self:DetectSpec(unit, self.specSpells[spell])
+		self:DetectSpec(unit, self.specSpells[spell] or self.specBuffs[spell])
 
 		-- Cooldown detection
       local unitClass = select(2, UnitClass(unit))
